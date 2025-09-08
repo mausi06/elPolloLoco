@@ -24,13 +24,23 @@
     <script src="classes/coins.class.js"></script>
     <script src="classes/bottles.class.js"></script>
     <script src="classes/gamover.class.js"></script>
+    <script src="classes/win.class.js"></script>
     <script src="levels/level1.js"></script>
     <script src="./js/game.js"></script>
+    <link rel="icon" href="img/2_character_pepe/1_idle/idle/I-1.png" />
 </head>
 <body>
     <h1>El Pollo Locco</h1>
+
+    <div id="game-container">
+        <canvas id="canvas" width="720" height="480"></canvas>
+
+        <div id="end-screen" class="hidden">
+            <button class="button" onclick="restartGame()">Restart</button>
+        </div>
+    </div>
     <div id="start-screen">
-        <button class="start-button" onclick="startGame()">Start Game</button>
+        <button class="button" onclick="startGame()">Start Game</button>
         <div class="instructions">
             <h2>Steuerung</h2>
             <p>Pfeiltaste links/rechts: Bewegen</p>
@@ -39,7 +49,16 @@
         </div>
     </div>
     
-    <canvas id="canvas" width="720" height="480">
-    </canvas>
+    
+    <div id="panel">
+        <div id="panel-left">
+            <button id="btn-left">←</button>
+            <button id="btn-right">→</button>
+        </div>
+        <div id="panel-right">
+            <button id="btn-jump">⤒</button>
+            <button id="btn-throw">🥤</button>
+        </div>
+    </div>
 </body>
 </html>

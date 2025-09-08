@@ -1,77 +1,126 @@
+/**
+ * Class representing a movable object in the game.
+ * Extends DrawableObject and adds physics, movement, collision, and animation handling.
+ */
 class MovableObjetcs extends DrawableObject {
-  speed = 0.2;
-  otherDirection = false;
-  speedY = 0;
-  acceleration = 2;
-  energy = 100;
+    /** @type {number} Horizontal movement speed */
+    speed = 0.2;
 
-  lastHit = 0;
+    /** @type {boolean} Flag indicating if the object is facing the other direction */
+    otherDirection = false;
 
-  applyGravity() {
-    // NEU: Prüfen, ob das Spiel läuft, um die Schleife zu stoppen, wenn das Spiel vorbei ist
-    setInterval(() => {
-      if (this.isAboveGround() || this.speedY > 0) {
-        if (world && world.gameIsRunning) {
-          this.y -= this.speedY;
-          this.speedY -= this.acceleration;
+    /** @type {number} Vertical speed (for jumping/falling) */
+    speedY = 0;
+
+    /** @type {number} Gravity acceleration applied to vertical movement */
+    acceleration = 2;
+
+    /** @type {number} Current energy/health of the object */
+    energy = 100;
+
+    /** @type {number} Timestamp of the last hit taken */
+    lastHit = 0;
+
+    /**
+     * Applies gravity to the object, updating its vertical position over time.
+     */
+    applyGravity() {
+        setInterval(() => {
+            if (this.isAboveGround() || this.speedY > 0) {
+                if (world && world.gameIsRunning) {
+                    this.y -= this.speedY;
+                    this.speedY -= this.acceleration;
+                }
+            }
+        }, 1000 / 25);
+    }
+
+    /**
+     * Checks if the object is above the ground.
+     * @returns {boolean} True if object is above the ground, false otherwise
+     */
+    isAboveGround() {
+        if (this instanceof ThrowableObject) {
+            return true;
+        } else {
+            return this.y < 180;
         }
-      }
-    }, 1000 / 25);
-  }
-
-  isAboveGround() {
-    if (this instanceof ThrowableObject) { // NEU: Prüfung für die geworfene Flasche
-      return true;
-    } else {
-      return this.y < 180;
     }
-  }
 
-  isColliding(mo) {
-    // Hier ist deine Kollisionslogik
-    return this.x + this.width > mo.x && this.y + this.height > mo.y && this.x < mo.x && this.y < mo.y + mo.height;
-  }
-
-  hit() {
-    this.energy -= 5;
-    if (this.energy < 0) {
-      this.energy = 0;
-    } else {
-      this.lastHit = new Date().getTime();
+    /**
+     * Checks if this object is colliding with another object.
+     * @param {MovableObjetcs} mo - Another movable object to check collision with
+     * @returns {boolean} True if colliding, false otherwise
+     */
+    isColliding(mo) {
+        return (
+            this.x + this.width > mo.x &&
+            this.x < mo.x + mo.width &&
+            this.y + this.height > mo.y &&
+            this.y < mo.y + mo.height
+        );
     }
-  }
 
-  isHurt() {
-    let timepassed = new Date().getTime() - this.lastHit;
-    timepassed = timepassed / 1000;
-    return timepassed < 1.5;
-  }
+    /**
+     * Reduces energy by 5 and sets lastHit timestamp.
+     */
+    hit() {
+        this.energy -= 5;
+        if (this.energy < 0) {
+            this.energy = 0;
+        } else {
+            this.lastHit = new Date().getTime();
+        }
+    }
 
-  isDead() {
-    return this.energy == 0;
-  }
+    /**
+     * Checks if the object is currently hurt (within 1.5 seconds of last hit).
+     * @returns {boolean} True if hurt, false otherwise
+     */
+    isHurt() {
+        let timepassed = (new Date().getTime() - this.lastHit) / 1000;
+        return timepassed < 1.5;
+    }
 
-  // NEU: Korrigierte isGameActive-Methode
-  isGameActive() {
-    return world && world.gameIsRunning;
-  }
+    /**
+     * Checks if the object is dead (energy is 0).
+     * @returns {boolean} True if dead, false otherwise
+     */
+    isDead() {
+        return this.energy === 0;
+    }
 
-  moveRight() {
-    this.x += this.speed;
-  }
+    /**
+     * Checks if the game is currently active.
+     * @returns {boolean} True if game is running
+     */
+    isGameActive() {
+        return world && world.gameIsRunning;
+    }
 
-  moveLeft() {
-    this.x -= this.speed;
-  }
+    /** Moves the object to the right by its speed. */
+    moveRight() {
+        this.x += this.speed;
+    }
 
-  playAnimation(images) {
-    let i = this.currentImage % images.length;
-    let path = images[i];
-    this.img = this.imageCache[path];
-    this.currentImage++;
-  }
+    /** Moves the object to the left by its speed. */
+    moveLeft() {
+        this.x -= this.speed;
+    }
 
-  jump() {
-    this.speedY = 30;
-  }
+    /**
+     * Plays an animation by cycling through an array of images.
+     * @param {string[]} images - Array of image paths
+     */
+    playAnimation(images) {
+        let i = this.currentImage % images.length;
+        let path = images[i];
+        this.img = this.imageCache[path];
+        this.currentImage++;
+    }
+
+    /** Makes the object jump by setting vertical speed. */
+    jump() {
+        this.speedY = 30;
+    }
 }

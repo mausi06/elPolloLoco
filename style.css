@@ -1,6 +1,11 @@
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
 @font-face {
     font-family: 'TACOM';
-    src: url('fonts/tacom-font.TTF') format('truetype'); /* Chrome 4+, Firefox 3.5, Opera 10+, Safari 3—5 */
+    src: url('fonts/tacom-font.TTF') format('truetype');
 } 
 
 body {
@@ -9,10 +14,12 @@ body {
     justify-content: center;
     align-items: center;
     margin: 0;
-    height: 100vh;
+    overflow: hidden;
     background-image: url('Desert.jpg');
     background-size: cover;
     background-position: center;
+    background-repeat: no-repeat; /* Verhindert, dass das Bild wiederholt wird */
+    height: 100vh; /* Stellt sicher, dass der Body 100% der Viewport-Höhe ausfüllt */
     font-family: sans-serif;
     color: white;
     font-family: 'TACOM', Arial, Helvetica, sans-serif;
@@ -25,9 +32,9 @@ canvas {
 }
 
 h1{
-  font-size: 40px;
-  letter-spacing: 2px;
-  text-shadow: 4px 8px 2px rgba(0, 0, 0, 0.6);
+    font-size: 40px;
+    letter-spacing: 2px;
+    text-shadow: 4px 8px 2px rgba(0, 0, 0, 0.6);
 }
 
 /* Stil für den Startbildschirm */
@@ -56,7 +63,7 @@ h1{
 }
 
 /* Stile für den Start-Button */
-.start-button {
+.button {
     padding: 15px 30px;
     font-family: 'TACOM', Arial, Helvetica, sans-serif;
     font-size: 24px;
@@ -71,7 +78,7 @@ h1{
     transition: transform 0.2s, background-color 0.2s;
 }
 
-.start-button:hover {
+.button:hover {
     background-color: #e5533d;
     transform: scale(1.05);
 }
@@ -92,29 +99,76 @@ h1{
 .instructions p {
     margin: 5px 0;
 }
-.mobile-button{
-  display: none;
+
+#panel {
+    display: none; /* Standardmäßig immer ausgeblendet */
+    position: absolute;
+    bottom: 20px;
+    width: 96%;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 200;
+}
+
+/* Diese Klasse wird durch JavaScript hinzugefügt, um das Panel sichtbar zu machen */
+#panel.show-panel {
+    display: flex;
+}
+
+#panel button {
+    width: 30px;
+    height: 30px;
+    margin: 5px;
+    font-size: 15px;
+    font-weight: bold;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.2);
+    color: white;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+    touch-action: none;
+}
+
+#panel-left, #panel-right {
+    display: flex;
+    gap: 10px;
+}
+
+#end-screen {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+}
+
+#end-screen.visible {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.hidden {
+    display: none;
 }
 
 @media only screen and (max-width: 720px){
-  canvas{
-    width: 100%;
-  }
-  h1{
-    display: none;
-  }
-  .mobile-button {
-        display: block;
+    canvas{
+        width: 100%;
+        height: auto;
+    }
+    h1{
+        display: none;
     }
 }
 @media only screen and (max-height: 480px){
-  canvas{
-    height: 100vh;
-  }
-  h1{
-    display: none;
-  }
-  .mobile-button {
-        display: block;
+    canvas{
+        height: 100vh;
+    }
+    h1{
+        display: none;
     }
 }

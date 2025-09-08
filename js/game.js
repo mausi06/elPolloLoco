@@ -1,80 +1,147 @@
 let canvas;
 let world;
 let keyboard = new Keyboard();
+let allIntervals = []; // Array zum Speichern aller Intervall-IDs
+let isGameStarted = false; // Neue Variable, um den Spielstatus zu verfolgen
 
 /**
- * Initializes the game.
+ * Checks if the panel should be visible based on screen size and game status.
+ */
+function checkPanelVisibility() {
+    let panel = document.getElementById('panel');
+    if (isGameStarted && window.innerWidth < 1300) {
+        panel.style.display = 'flex';
+    } else {
+        panel.style.display = 'none';
+    }
+}
+
+/**
+ * Initializes the game and creates a new World object.
  */
 function init() {
     canvas = document.getElementById('canvas');
     world = new World(canvas, keyboard);
-
-    console.log('My Character is;', world.character);
-
-    // NEU: Event-Listener für den mobilen Wurf-Button
-    const throwButton = document.getElementById('mobile-throw-button');
-    if (throwButton) {
-        throwButton.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // Verhindert unerwünschtes Verhalten des Browsers
-            keyboard.SPACE = true;
-        });
-
-        throwButton.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            keyboard.SPACE = false;
-        });
-    }
 }
 
 /**
  * This function is triggered by the "Start Game" button.
- * It hides the start screen and initializes the game.
+ * It hides the start screen, sets the game status, and initializes the game.
  */
 function startGame() {
     document.getElementById('start-screen').classList.add('hidden');
+    isGameStarted = true;
+    checkPanelVisibility(); // Überprüfe Sichtbarkeit beim Start
     init();
 }
 
 /**
- * Listens for keydown events and sets the corresponding
- * keyboard property to true.
+ * Restarts the game by resetting all game states and showing the start screen.
  */
-window.addEventListener("keydown", (e) => {
-    if (e.keyCode == 39) { // right arrow
-        keyboard.RIGHT = true;
+function restartGame() {
+    allIntervals.forEach(interval => clearInterval(interval));
+    allIntervals = [];
+
+    world = null;
+    keyboard = new Keyboard();
+
+    isGameStarted = false;
+    document.getElementById('start-screen').classList.remove('hidden');
+    document.getElementById('end-screen').classList.remove('visible');
+    document.getElementById('end-screen').classList.add('hidden');
+    document.getElementById('panel').style.display = 'none';
+
+    let youWin = new YouWin();
+    youWin.isGameWon = false;
+    youWin.isAnimating = false;
+    youWin.isAnimationComplete = false;
+
+    let canvas = document.getElementById('canvas');
+    if (canvas) {
+        let ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
-    if (e.keyCode == 37) { // left arrow
-        keyboard.LEFT = true;
-    }
-    if (e.keyCode == 38) { // up arrow
-        keyboard.UP = true;
-    }
-    if (e.keyCode == 40) { // down arrow
-        keyboard.DOWN = true;
-    }
-    if (e.keyCode == 32) { // Space key
-        keyboard.SPACE = true;
-    }
-});
+}
 
 /**
- * Listens for keyup events and sets the corresponding
- * keyboard property to false.
+ * Waits for the DOM to be fully loaded before adding event listeners.
  */
-window.addEventListener("keyup", (e) => {
-    if (e.keyCode == 39) { // right arrow
-        keyboard.RIGHT = false;
-    }
-    if (e.keyCode == 37) { // left arrow
+document.addEventListener('DOMContentLoaded', () => {
+    // Füge den Resize-Event-Listener hinzu, um die Sichtbarkeit kontinuierlich zu prüfen
+    window.addEventListener('resize', checkPanelVisibility);
+
+    document.getElementById('btn-left').addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        keyboard.LEFT = true;
+    });
+    document.getElementById('btn-left').addEventListener('touchend', (e) => {
+        e.preventDefault();
         keyboard.LEFT = false;
-    }
-    if (e.keyCode == 38) { // up arrow
+    });
+
+    document.getElementById('btn-right').addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        keyboard.RIGHT = true;
+    });
+    document.getElementById('btn-right').addEventListener('touchend', (e) => {
+        e.preventDefault();
+        keyboard.RIGHT = false;
+    }); 
+
+    document.getElementById('btn-jump').addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        keyboard.UP = true;
+    });
+    document.getElementById('btn-jump').addEventListener('touchend', (e) => {
+        e.preventDefault();
         keyboard.UP = false;
-    }
-    if (e.keyCode == 40) { // down arrow
-        keyboard.DOWN = false;
-    }
-    if (e.keyCode == 32) { // Space key
+    });
+
+    document.getElementById('btn-throw').addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        keyboard.SPACE = true;
+    });
+    document.getElementById('btn-throw').addEventListener('touchend', (e) => {
+        e.preventDefault();
         keyboard.SPACE = false;
-    }
+    });
+
+    window.addEventListener("keydown", (e) => {
+        if ([37, 38, 39, 40, 32].includes(e.keyCode)) {
+            e.preventDefault();
+        }
+        if (e.keyCode == 39) { 
+            keyboard.RIGHT = true;
+        }
+        if (e.keyCode == 37) {
+            keyboard.LEFT = true;
+        }
+        if (e.keyCode == 38) { 
+            keyboard.UP = true;
+        }
+        if (e.keyCode == 40) {
+            keyboard.DOWN = true;
+        }
+        if (e.keyCode == 32) {
+            keyboard.SPACE = true;
+        }
+    });
+
+    window.addEventListener("keyup", (e) => {
+        if (e.keyCode == 39) {
+            keyboard.RIGHT = false;
+        }
+        if (e.keyCode == 37) {
+            keyboard.LEFT = false;
+        }
+        if (e.keyCode == 38) {
+            keyboard.UP = false;
+        }
+        if (e.keyCode == 40) {
+            keyboard.DOWN = false;
+        }
+        if (e.keyCode == 32) {
+            keyboard.SPACE = false;
+        }
+    });
 });

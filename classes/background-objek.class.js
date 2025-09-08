@@ -1,3 +1,10 @@
+/**
+ * Represents a static background object in the game world.
+ * Inherits movement capabilities from MovableObjects but remains visually fixed.
+ * 
+ * @extends MovableObjetcs
+ */
+
 class BackgroundObject extends MovableObjetcs{
 
   width = 720;
