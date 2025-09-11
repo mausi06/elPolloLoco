@@ -35,6 +35,10 @@
     <div id="game-container">
         <canvas id="canvas" width="720" height="480"></canvas>
 
+        <div id="mute-button" class="hidden" onclick="world.toggleMute()">
+            <img id="mute-icon" src="/img/mute.png" alt="Mute">
+        </div>
+
         <div id="end-screen" class="hidden">
             <button class="button" onclick="restartGame()">Restart</button>
         </div>

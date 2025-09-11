@@ -9,7 +9,9 @@ let isGameStarted = false; // Neue Variable, um den Spielstatus zu verfolgen
  */
 function checkPanelVisibility() {
     let panel = document.getElementById('panel');
-    if (isGameStarted && window.innerWidth < 1300) {
+    let isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
+
+    if (isGameStarted && isTouchDevice) {
         panel.style.display = 'flex';
     } else {
         panel.style.display = 'none';
@@ -33,6 +35,10 @@ function startGame() {
     isGameStarted = true;
     checkPanelVisibility(); // Überprüfe Sichtbarkeit beim Start
     init();
+    document.getElementById('mute-button').style.display = 'flex';
+    if (!world.isMuted) {
+        world.game_music.play();
+    }
 }
 
 /**
@@ -50,6 +56,7 @@ function restartGame() {
     document.getElementById('end-screen').classList.remove('visible');
     document.getElementById('end-screen').classList.add('hidden');
     document.getElementById('panel').style.display = 'none';
+    document.getElementById('mute-button').style.display = 'none';
 
     let youWin = new YouWin();
     youWin.isGameWon = false;

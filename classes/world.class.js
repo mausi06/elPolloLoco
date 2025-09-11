@@ -69,6 +69,8 @@ class World {
     /** @type {HTMLAudioElement} The sound played when the game is over. */
     game_over_sound = new Audio('audio/game-over.mp3');
 
+    isMuted = false;
+
     /**
      * Creates a new World instance.
      * @param {HTMLCanvasElement} canvas - The canvas element for drawing.
@@ -124,79 +126,142 @@ class World {
      * Continuously checks for various collisions and game state changes
      * at a set interval.
      */
-    checkCollisions() {
-        let collisionInterval = setInterval(() => {
-            if (this.gameIsRunning) {
-                if (this.character.isDead() && !this.characterIsDead) {
-                    this.triggerGameOver();
-                }
+    /**
+ * Continuously checks for various collisions and game state changes
+ * at a set interval.
+ */
+checkCollisions() {
+    let collisionInterval = setInterval(() => {
+        if (this.gameIsRunning) {
+            this.checkCharacterState();
+            this.checkEnemyCollisions();
+            this.checkCoinCollisions();
+            this.checkBottleCollisions();
+            this.checkThrowAction();
+            this.checkThrowableCollisions();
+        }
+        this.checkEndbossState();
+    }, 200);
 
-                if (!this.characterIsDead) {
-                    this.level.enemies.forEach((enemy) => {
-                        if (this.character.isColliding(enemy)) {
-                            if (this.character.speedY > 0 && this.character.y + this.character.height > enemy.y + 20) {
-                                enemy.hit();
-                                this.character.jump();
-                            } else if (enemy instanceof Endboss) {
-                                let timeSinceLastAttack = new Date().getTime() - enemy.lastAttackTime;
-                                if (timeSinceLastAttack > 1500) {
-                                    enemy.attack();
-                                }
-                            } else {
-                                this.character.hit();
-                                this.healthStatusBar.setPercentage(this.character.energy);
-                            }
-                        }
-                    });
+    allIntervals.push(collisionInterval);
+}
 
-                    this.level.coins.forEach((coin, index) => {
-                        if (this.character.isColliding(coin)) {
-                            this.level.coins.splice(index, 1);
-                            this.collectedCoins++;
-                            this.coinStatusBar.setPercentage(this.collectedCoins, this.totalCoins);
-                        }
-                    });
+//---
 
-                    this.level.bottles.forEach((bottle, index) => {
-                        if (this.character.isColliding(bottle)) {
-                            this.level.bottles.splice(index, 1);
-                            this.collectedBottles++;
-                            this.bottleStatusBar.setPercentage(this.collectedBottles, this.totalBottles);
-                        }
-                    });
-                }
-
-                if (this.keyboard.SPACE && this.collectedBottles > 0) {
-                    let bottle = new ThrowableObject(this.character.x, this.character.y, this.character.otherDirection);
-                    this.throwableObjects.push(bottle);
-                    this.collectedBottles--;
-                    this.bottleStatusBar.setPercentage(this.collectedBottles, this.totalBottles);
-                    this.keyboard.SPACE = false;
-                }
-
-                this.throwableObjects.forEach((bottle) => {
-                    this.level.enemies.forEach((enemy) => {
-                        if (bottle.isColliding(enemy) && !bottle.hasHit) {
-                            enemy.hit();
-                            bottle.hasHit = true;
-
-                            if (enemy instanceof Endboss) {
-                                this.endbossHealthStatusBar.setPercentage(enemy.energy);
-                            }
-                        }
-                    });
-                });
-            }
-
-            let endboss = this.level.enemies.find(e => e instanceof Endboss);
-            if (endboss && endboss.isDead() && endboss.isDeadAnimationComplete && !this.gameIsWon) {
-                this.triggerGameWon();
-            }
-
-        }, 200);
-
-        allIntervals.push(collisionInterval);
+/**
+ * Checks if the character is dead and triggers the game over state.
+ */
+checkCharacterState() {
+    if (this.character.isDead() && !this.characterIsDead) {
+        this.triggerGameOver();
     }
+}
+
+//---
+
+/**
+ * Checks for collisions between the character and all enemies.
+ */
+checkEnemyCollisions() {
+    if (!this.characterIsDead) {
+        this.level.enemies.forEach((enemy) => {
+            if (this.character.isColliding(enemy)) {
+                if (this.character.speedY < 0 && this.character.y + this.character.height > enemy.y + 20) {
+                    enemy.hit();
+                    this.character.jump();
+                } else if (enemy instanceof Endboss) {
+                    let timeSinceLastAttack = new Date().getTime() - enemy.lastAttackTime;
+                    if (timeSinceLastAttack > 1500) {
+                        enemy.attack();
+                    }
+                } else {
+                    this.character.hit();
+                    this.healthStatusBar.setPercentage(this.character.energy);
+                }
+            }
+        });
+    }
+}
+
+//---
+
+/**
+ * Checks for collisions between the character and collectible coins.
+ */
+checkCoinCollisions() {
+    if (!this.characterIsDead) {
+        this.level.coins.forEach((coin, index) => {
+            if (this.character.isColliding(coin)) {
+                this.level.coins.splice(index, 1);
+                this.collectedCoins++;
+                this.coinStatusBar.setPercentage(this.collectedCoins, this.totalCoins);
+            }
+        });
+    }
+}
+
+//---
+
+/**
+ * Checks for collisions between the character and collectible bottles.
+ */
+checkBottleCollisions() {
+    if (!this.characterIsDead) {
+        this.level.bottles.forEach((bottle, index) => {
+            if (this.character.isColliding(bottle)) {
+                this.level.bottles.splice(index, 1);
+                this.collectedBottles++;
+                this.bottleStatusBar.setPercentage(this.collectedBottles, this.totalBottles);
+            }
+        });
+    }
+}
+
+//---
+
+/**
+ * Checks if a bottle should be thrown based on keyboard input and collected bottles.
+ */
+checkThrowAction() {
+    if (this.keyboard.SPACE && this.collectedBottles > 0) {
+        let bottle = new ThrowableObject(this.character.x, this.character.y, this.character.otherDirection);
+        this.throwableObjects.push(bottle);
+        this.collectedBottles--;
+        this.bottleStatusBar.setPercentage(this.collectedBottles, this.totalBottles);
+        this.keyboard.SPACE = false;
+    }
+}
+
+//---
+
+/**
+ * Checks for collisions between thrown bottles and enemies.
+ */
+checkThrowableCollisions() {
+    this.throwableObjects.forEach((bottle) => {
+        this.level.enemies.forEach((enemy) => {
+            if (bottle.isColliding(enemy) && !bottle.hasHit) {
+                enemy.hit();
+                bottle.hasHit = true;
+                if (enemy instanceof Endboss) {
+                    this.endbossHealthStatusBar.setPercentage(enemy.energy);
+                }
+            }
+        });
+    });
+}
+
+//---
+
+/**
+ * Checks the state of the Endboss to determine if the game is won.
+ */
+checkEndbossState() {
+    let endboss = this.level.enemies.find(e => e instanceof Endboss);
+    if (endboss && endboss.isDead() && endboss.isDeadAnimationComplete && !this.gameIsWon) {
+        this.triggerGameWon();
+    }
+}
 
     /**
      * Triggers the "Game Won" state, stopping the game and starting the win animation.
@@ -328,5 +393,24 @@ class World {
     flipImageBack(mo) {
         mo.x = mo.x * -1;
         this.ctx.restore();
+    }
+
+    /**
+     * Toggles the sound on and off and changes the mute icon accordingly.
+     */
+    toggleMute() {
+        let muteIcon = document.getElementById('mute-icon');
+
+        if (this.isMuted) {
+            // Unmute the sound
+            muteIcon.src = 'img/mute.png'; // Passe den Pfad an
+            this.game_music.play();
+            this.isMuted = false;
+        } else {
+            // Mute the sound
+            muteIcon.src = 'img/unmute.png'; // Passe den Pfad an
+            this.game_music.pause();
+            this.isMuted = true;
+        }
     }
 }
