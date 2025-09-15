@@ -3,29 +3,43 @@
  * Extends MovableObjetcs to inherit movement, gravity, and collision logic.
  */
 class Character extends MovableObjetcs {
-    /** @type {number} Vertical position of the character */
     y = 80;
-
-    /** @type {number} Height of the character */
     height = 250;
-
-    /** @type {number} Movement speed of the character */
     speed = 10;
-
-    /** @type {number} Energy (health) of the character */
     energy = 100;
 
-    /** @type {boolean} Flag to stop all animations */
     stopAnimations = false;
-
-    /** @type {boolean} Flag indicating if the death animation has finished */
     isDeadAnimationComplete = false;
-
-    /** @type {boolean} Internal flag to prevent hurt sound from repeating */
     hurt_sound_played = false;
+    jumpAnimationPlayed = false;
 
-    /** @type {string[]} Image paths for walking animation */
-    Images_Walking = [
+    Images_IDILE = [
+        'img/2_character_pepe/1_idle/idle/I-1.png',
+        'img/2_character_pepe/1_idle/idle/I-2.png',
+        'img/2_character_pepe/1_idle/idle/I-3.png',
+        'img/2_character_pepe/1_idle/idle/I-4.png',
+        'img/2_character_pepe/1_idle/idle/I-5.png',
+        'img/2_character_pepe/1_idle/idle/I-6.png',
+        'img/2_character_pepe/1_idle/idle/I-7.png',
+        'img/2_character_pepe/1_idle/idle/I-8.png',
+        'img/2_character_pepe/1_idle/idle/I-9.png',
+        'img/2_character_pepe/1_idle/idle/I-10.png'
+    ];
+
+    Images_SLEEPING = [
+    'img/2_character_pepe/1_idle/long_idle/I-11.png',
+    'img/2_character_pepe/1_idle/long_idle/I-12.png',
+    'img/2_character_pepe/1_idle/long_idle/I-13.png',
+    'img/2_character_pepe/1_idle/long_idle/I-14.png',
+    'img/2_character_pepe/1_idle/long_idle/I-15.png',
+    'img/2_character_pepe/1_idle/long_idle/I-16.png',
+    'img/2_character_pepe/1_idle/long_idle/I-17.png',
+    'img/2_character_pepe/1_idle/long_idle/I-18.png',
+    'img/2_character_pepe/1_idle/long_idle/I-19.png',
+    'img/2_character_pepe/1_idle/long_idle/I-20.png'
+];
+
+    Images_WALKING = [
         'img/2_character_pepe/2_walk/W-21.png',
         'img/2_character_pepe/2_walk/W-22.png',
         'img/2_character_pepe/2_walk/W-23.png',
@@ -34,7 +48,6 @@ class Character extends MovableObjetcs {
         'img/2_character_pepe/2_walk/W-26.png'
     ];
 
-    /** @type {string[]} Image paths for jumping animation */
     Images_JUMPING = [
         'img/2_character_pepe/3_jump/J-31.png',
         'img/2_character_pepe/3_jump/J-32.png',
@@ -47,7 +60,6 @@ class Character extends MovableObjetcs {
         'img/2_character_pepe/3_jump/J-39.png'
     ];
 
-    /** @type {string[]} Image paths for death animation */
     Images_DEAD = [
         'img/2_character_pepe/5_dead/D-51.png',
         'img/2_character_pepe/5_dead/D-52.png',
@@ -58,56 +70,64 @@ class Character extends MovableObjetcs {
         'img/2_character_pepe/5_dead/D-57.png'
     ];
 
-    /** @type {string[]} Image paths for hurt animation */
     Images_HURT = [
         'img/2_character_pepe/4_hurt/H-41.png',
         'img/2_character_pepe/4_hurt/H-42.png',
         'img/2_character_pepe/4_hurt/H-43.png'
     ];
 
-    /** @type {HTMLAudioElement} Walking sound effect */
     walking_sound = new Audio('audio/walking-sound-effect-272246.mp3');
-
-    /** @type {HTMLAudioElement} Jump sound effect */
     jump_sound = new Audio('audio/jump.mp3');
-
-    /** @type {HTMLAudioElement} Hurt sound effect */
     hurt_sound = new Audio('audio/hurt.mp3');
 
-    /**
-     * Creates a Character instance.
-     * Loads all animations, applies gravity, loops walking sound, and starts animations.
-     */
+    currentAnimation = null;
+    currentFrameIndex = 0;
+    frameTimer = 0;
+    frameDelay = 50;
+    animationLoop = true;
+
+    // --- Idle/Sleep Tracking ---
+    lastActionTime = Date.now();
+    isSleeping = false;
+
     constructor() {
         super().loadImage('img/2_character_pepe/1_idle/idle/I-1.png');
-        this.loadImages(this.Images_Walking);
+        this.loadImages(this.Images_IDILE);
+        this.loadImages(this.Images_SLEEPING);
+        this.loadImages(this.Images_WALKING);
         this.loadImages(this.Images_JUMPING);
         this.loadImages(this.Images_DEAD);
         this.loadImages(this.Images_HURT);
+
+        this.currentAnimation = this.Images_IDILE;
+        this.currentFrameIndex = 0;
+        this.frameDelay = 150;
+        this.animationLoop = true;
+        this.loadImage(this.currentAnimation[this.currentFrameIndex]);
+
         this.applyGravity();
         this.walking_sound.loop = true;
         this.animate();
     }
 
-    /**
-     * Starts the animation loops for movement/sound and sprite animations.
-     */
     animate() {
         setInterval(() => this.handleMovementAndSound(), 1000 / 60);
         setInterval(() => this.handleAnimations(), 50);
     }
 
-    /**
-     * Handles character movement based on keyboard input and plays walking/jump sounds.
-     */
     handleMovementAndSound() {
         if (this.stopAnimations || !this.world?.gameIsRunning) {
             this.stopAllSounds();
             return;
         }
 
-        const isMoving = this.world.keyboard.RIGHT || this.world.keyboard.LEFT;
-        if (isMoving && !this.isAboveGround()) {
+        const isMoving = this.world.keyboard.RIGHT || this.world.keyboard.LEFT || this.world.keyboard.UP;
+        if (isMoving) {
+            this.lastActionTime = Date.now();
+            this.isSleeping = false;
+        }
+
+        if ((this.world.keyboard.RIGHT || this.world.keyboard.LEFT) && !this.isAboveGround()) {
             this.walking_sound.play().catch(() => {});
         } else {
             this.walking_sound.pause();
@@ -128,66 +148,108 @@ class Character extends MovableObjetcs {
         this.world.camera_x = -this.x + 100;
     }
 
-    /**
-     * Handles sprite animations and plays corresponding sounds (walking, jumping, hurt, dead).
-     */
     handleAnimations() {
         if (this.stopAnimations) return;
 
-        if (this.isDead() && !this.isDeadAnimationComplete) {
-            this.playAnimation(this.Images_DEAD);
-            setTimeout(() => {
+        if (this.isDead()) {
+            this.switchAnimation(this.Images_DEAD, 200, false);
+            this.advanceAnimation(50);
+            if (this.currentFrameIndex === this.Images_DEAD.length - 1) {
                 this.isDeadAnimationComplete = true;
-                this.loadImage(this.Images_DEAD[this.Images_DEAD.length - 1]);
                 this.stopAnimations = true;
                 this.stopAllSounds();
-            }, this.Images_DEAD.length * 200);
-        } else if (this.isHurt()) {
-            this.playAnimation(this.Images_HURT);
+            }
+            return;
+        }
+
+        if (this.isHurt()) {
+            this.switchAnimation(this.Images_HURT, 120, false);
             if (!this.hurt_sound_played) {
                 this.hurt_sound.play().catch(() => {});
                 this.hurt_sound_played = true;
             }
+            this.advanceAnimation(50);
+            return;
         } else {
             this.hurt_sound_played = false;
-            if (this.isAboveGround()) {
-                this.playAnimation(this.Images_JUMPING);
-            } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-                this.playAnimation(this.Images_Walking);
+        }
+
+        // Sleep-Check
+        if (!this.isSleeping && Date.now() - this.lastActionTime > 10000) {
+            this.isSleeping = true;
+            this.switchAnimation(this.Images_SLEEPING, 200, true);
+        }
+
+        if (this.isSleeping) {
+            this.advanceAnimation(50);
+            return;
+        }
+
+        if (this.isAboveGround()) {
+            if (!this.jumpAnimationPlayed) {
+                this.switchAnimation(this.Images_JUMPING, 50, false);
+                this.jumpAnimationPlayed = true;
             }
+            this.advanceAnimation(50);
+            return;
+        }
+
+        if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+            this.switchAnimation(this.Images_WALKING, 60, true);
+            this.jumpAnimationPlayed = false;
+            this.advanceAnimation(50);
+            return;
+        }
+
+        this.switchAnimation(this.Images_IDILE, 150, true);
+        this.jumpAnimationPlayed = false;
+        this.advanceAnimation(50);
+    }
+
+    switchAnimation(images, frameDelayMs = 50, loop = true) {
+        if (this.currentAnimation !== images) {
+            this.currentAnimation = images;
+            this.currentFrameIndex = -1; // -1 = noch kein Frame gesetzt
+            this.frameTimer = 0;
+            this.frameDelay = frameDelayMs;
+            this.animationLoop = !!loop;
         }
     }
 
-    /**
-     * Checks if the character is dead.
-     * @returns {boolean} True if energy is 0, else false
-     */
+    advanceAnimation(deltaMs) {
+        if (!this.currentAnimation || this.currentAnimation.length === 0) return;
+
+        this.frameTimer += deltaMs;
+        if (this.frameTimer < this.frameDelay && this.currentFrameIndex !== -1) return;
+
+        this.frameTimer = 0;
+
+        if (this.currentFrameIndex < this.currentAnimation.length - 1) {
+            this.currentFrameIndex++;
+        } else {
+            this.currentFrameIndex = this.animationLoop ? 0 : this.currentAnimation.length - 1;
+        }
+
+        this.loadImage(this.currentAnimation[this.currentFrameIndex]);
+    }
+
     isDead() {
         return this.energy === 0;
     }
 
-    /**
-     * Stops all currently playing character sounds.
-     */
     stopAllSounds() {
         this.walking_sound.pause();
         this.jump_sound.pause();
         this.hurt_sound.pause();
     }
 
-    /**
-     * Plays jump sound and calls the jump function from MovableObjetcs.
-     */
     jump() {
         super.jump();
-        this.jump_sound.play();
+        this.jump_sound.play().catch(() => {});
     }
 
-    /**
-     * Plays hurt sound and calls the hit function from MovableObjetcs.
-     */
     hit() {
         super.hit();
-        this.hurt_sound.play();
+        this.hurt_sound.play().catch(() => {});
     }
 }

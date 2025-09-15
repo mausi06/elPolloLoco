@@ -77,35 +77,40 @@ class World {
      * @param {Keyboard} keyboard - The keyboard handler.
      */
     constructor(canvas, keyboard) {
-        this.ctx = canvas.getContext('2d');
-        this.canvas = canvas;
-        this.keyboard = keyboard;
+    this.ctx = canvas.getContext('2d');
+    this.canvas = canvas;
+    this.keyboard = keyboard;
 
-        this.level = createLevel1();
-        this.character = new Character();
+    this.level = createLevel1();
+    this.character = new Character();
 
-        this.totalCoins = this.level.coins.length;
-        this.collectedCoins = 0;
-        this.totalBottles = this.level.bottles.length;
-        this.collectedBottles = 0;
+    this.totalCoins = this.level.coins.length;
+    this.collectedCoins = 0;
+    this.totalBottles = this.level.bottles.length;
+    this.collectedBottles = 0;
 
-        this.healthStatusBar = new HealthStatusBar();
-        this.coinStatusBar = new CoinStatusBar();
-        this.coinStatusBar.setPercentage(0, this.totalCoins);
+    this.healthStatusBar = new HealthStatusBar();
+    this.coinStatusBar = new CoinStatusBar();
+    this.coinStatusBar.setPercentage(0, this.totalCoins);
 
-        this.bottleStatusBar = new BottleStatusBar();
-        this.bottleStatusBar.setPercentage(0, this.totalBottles);
+    this.bottleStatusBar = new BottleStatusBar();
+    this.bottleStatusBar.setPercentage(0, this.totalBottles);
 
-        this.endbossHealthStatusBar = new EndbossHealthStatusBar();
+    this.endbossHealthStatusBar = new EndbossHealthStatusBar();
 
-        this.gameOver = new GameOver();
-        this.youWin = new YouWin();
+    this.gameOver = new GameOver();
+    this.youWin = new YouWin();
 
-        this.draw();
-        this.setWorld();
-        this.checkCollisions();
+    this.loadMuteStatus();
+
+    this.draw();
+    this.setWorld();
+    this.checkCollisions();
+
+    if (!this.isMuted) {
         this.game_music.play();
     }
+}
 
     /**
      * Sets the 'world' property for the character and enemies,
@@ -402,15 +407,34 @@ checkEndbossState() {
         let muteIcon = document.getElementById('mute-icon');
 
         if (this.isMuted) {
-            // Unmute the sound
-            muteIcon.src = 'img/mute.png'; // Passe den Pfad an
+            muteIcon.src = 'img/unmute.png';
             this.game_music.play();
             this.isMuted = false;
         } else {
-            // Mute the sound
-            muteIcon.src = 'img/unmute.png'; // Passe den Pfad an
+            muteIcon.src = 'img/mute.png'; 
             this.game_music.pause();
             this.isMuted = true;
+        }
+        localStorage.setItem('isMusicMuted', this.isMuted);
+    }
+
+    /**
+     * Loads the saved music mute status from local storage.
+     * It retrieves the 'isMusicMuted' flag, updates the
+     * `isMuted` property of the class, and sets the
+     * corresponding mute icon and audio state.
+     */
+    loadMuteStatus() {
+        const savedStatus = localStorage.getItem('isMusicMuted');
+        if (savedStatus !== null) {
+            this.isMuted = savedStatus === 'true';
+            if (this.isMuted) {
+                document.getElementById('mute-icon').src = 'img/mute.png';
+                this.game_music.pause();
+            } else {
+                document.getElementById('mute-icon').src = 'img/unmute.png';
+                this.game_music.play();
+            }
         }
     }
 }
