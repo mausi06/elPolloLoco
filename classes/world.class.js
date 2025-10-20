@@ -3,346 +3,108 @@
  * interactions, and the game loop.
  */
 class World {
-    /** @type {Level} The current game level, containing enemies, clouds, and background objects. */
-    level;
-    
-    /** @type {Character} The main character controlled by the player. */
-    character;
-    
-    /** @type {HTMLCanvasElement} The HTML canvas element for drawing the game. */
-    canvas;
-    
-    /** @type {CanvasRenderingContext2D} The 2D rendering context of the canvas. */
-    ctx;
-    
-    /** @type {Keyboard} The keyboard input handler. */
-    keyboard;
-    
-    /** @type {number} The x-coordinate of the camera, used for moving the view. */
-    camera_x = 0;
-
-    /** @type {HealthStatusBar} Status bar for the character's health. */
-    healthStatusBar;
-    
-    /** @type {CoinStatusBar} Status bar for the collected coins. */
-    coinStatusBar;
-    
-    /** @type {BottleStatusBar} Status bar for the collected bottles. */
-    bottleStatusBar;
-    
-    /** @type {EndbossHealthStatusBar} Status bar for the Endboss's health. */
-    endbossHealthStatusBar;
-
-    /** @type {number} The total number of coins in the level. */
-    totalCoins;
-    
-    /** @type {number} The number of coins the character has collected. */
-    collectedCoins = 0;
-    
-    /** @type {number} The total number of bottles in the level. */
-    totalBottles;
-    
-    /** @type {number} The number of bottles the character has collected. */
-    collectedBottles = 0;
-
-    /** @type {boolean} Flag to determine if the game is currently running. */
-    gameIsRunning = true;
-    
-    /** @type {boolean} Flag to track if the character has died. */
-    characterIsDead = false;
-    
-    /** @type {boolean} Flag to determine if the game has been won. */
-    gameIsWon = false;
-
-    /** @type {GameOver} The screen displayed when the game is over. */
-    gameOver;
-    
-    /** @type {YouWin} The screen displayed when the player wins. */
-    youWin;
-    
-    /** @type {ThrowableObject[]} An array of bottles that have been thrown. */
-    throwableObjects = [];
-
-    /** @type {HTMLAudioElement} The game's background music. */
-    game_music = new Audio('audio/game-music.mp3');
-    
-    /** @type {HTMLAudioElement} The sound played when the game is over. */
-    game_over_sound = new Audio('audio/game-over.mp3');
-
-    isMuted = false;
-
     /**
      * Creates a new World instance.
      * @param {HTMLCanvasElement} canvas - The canvas element for drawing.
      * @param {Keyboard} keyboard - The keyboard handler.
      */
     constructor(canvas, keyboard) {
-    this.ctx = canvas.getContext('2d');
-    this.canvas = canvas;
-    this.keyboard = keyboard;
+        /** @type {CanvasRenderingContext2D} */
+        this.ctx = canvas.getContext('2d');
+        /** @type {HTMLCanvasElement} */
+        this.canvas = canvas;
+        /** @type {Keyboard} */
+        this.keyboard = keyboard;
 
-    this.level = createLevel1();
-    this.character = new Character();
+        /** @type {Level} */
+        this.level = createLevel1();
+        /** @type {Character} */
+        this.character = new Character();
+        this.character.world = this;
 
-    this.totalCoins = this.level.coins.length;
-    this.collectedCoins = 0;
-    this.totalBottles = this.level.bottles.length;
-    this.collectedBottles = 0;
+        /** @type {number} */
+        this.totalCoins = this.level.coins.length;
+        /** @type {number} */
+        this.totalBottles = this.level.bottles.length;
+        /** @type {number} */
+        this.collectedCoins = 0;
+        /** @type {number} */
+        this.collectedBottles = 0;
 
-    this.healthStatusBar = new HealthStatusBar();
-    this.coinStatusBar = new CoinStatusBar();
-    this.coinStatusBar.setPercentage(0, this.totalCoins);
+        /** @type {HealthStatusBar} */
+        this.healthStatusBar = new HealthStatusBar();
+        /** @type {CoinStatusBar} */
+        this.coinStatusBar = new CoinStatusBar();
+        this.coinStatusBar.setPercentage(0, this.totalCoins);
+        /** @type {BottleStatusBar} */
+        this.bottleStatusBar = new BottleStatusBar();
+        this.bottleStatusBar.setPercentage(0, this.totalBottles);
+        /** @type {EndbossHealthStatusBar} */
+        this.endbossHealthStatusBar = new EndbossHealthStatusBar();
 
-    this.bottleStatusBar = new BottleStatusBar();
-    this.bottleStatusBar.setPercentage(0, this.totalBottles);
+        /** @type {GameOver} */
+        this.gameOver = new GameOver();
+        /** @type {YouWin} */
+        this.youWin = new YouWin();
 
-    this.endbossHealthStatusBar = new EndbossHealthStatusBar();
+        /** @type {boolean} */
+        this.gameIsRunning = true;
+        /** @type {boolean} */
+        this.characterIsDead = false;
+        /** @type {boolean} */
+        this.gameIsWon = false;
 
-    this.gameOver = new GameOver();
-    this.youWin = new YouWin();
+        /** @type {HTMLAudioElement} */
+        this.game_music = new Audio('audio/game-music.mp3');
+        /** @type {HTMLAudioElement} */
+        this.game_over_sound = new Audio('audio/game-over.mp3');
+        /** @type {HTMLAudioElement[]} */
+        this.sounds = [this.game_music, this.game_over_sound, this.character.walking_sound, this.character.jump_sound, this.character.hurt_sound];
+        /** @type {boolean} */
+        this.isMuted = false;
 
-    this.loadMuteStatus();
+        /** @type {ThrowableObject[]} */
+        this.throwableObjects = [];
 
-    this.draw();
-    this.setWorld();
-    this.checkCollisions();
+        /** @type {CollisionManager} */
+        this.collisionManager = new CollisionManager(this);
 
-    if (!this.isMuted) {
-        this.game_music.play();
+        this.setWorld();
+        this.loadMuteStatus();
+        this.draw();
+        this.startCollisionLoop();
+        if (!this.isMuted) this.game_music.play();
     }
-}
 
     /**
-     * Sets the 'world' property for the character and enemies,
-     * providing them a reference to the main World object.
-     * This is crucial for their interactions within the game.
+     * Sets the 'world' property for enemies and starts the endboss logic.
      */
     setWorld() {
-        this.character.world = this;
         this.level.enemies.forEach(enemy => {
             enemy.world = this;
-            if (enemy instanceof Endboss) {
-                enemy.startLogic();
-            }
+            if (enemy instanceof Endboss) enemy.startLogic();
         });
     }
 
     /**
-     * Continuously checks for various collisions and game state changes
-     * at a set interval.
+     * Starts the main collision loop, updating all collision checks 60 times per second.
      */
-    checkCollisions() {
-        let collisionInterval = setInterval(() => {
-            if (this.gameIsRunning) {
-                this.checkCharacterState();
-                this.checkEnemyCollisions();
-                this.checkCoinCollisions();
-                this.checkBottleCollisions();
-                this.checkThrowAction();
-                this.checkThrowableCollisions();
-            }
-            this.checkEndbossState();
-        }, 1000 / 60);
+    startCollisionLoop() {
+        let collisionInterval = setInterval(() => this.collisionManager.update(), 1000 / 60);
         allIntervals.push(collisionInterval);
     }
-//---
-
-/**
- * Checks if the character is dead and triggers the game over state.
- */
-checkCharacterState() {
-    if (this.character.isDead() && !this.characterIsDead) {
-        this.triggerGameOver();
-    }
-}
-
-//---
-
-/**
- * Checks for collisions between the character and all enemies.
- */
-checkEnemyCollisions() {
-    if (this.characterIsDead) return;
-
-    let hasJumpedOnEnemy = false;g
-
-    this.level.enemies.forEach((enemy, index) => {
-        if (!this.character.isColliding(enemy) || enemy.isDead()) return;
-
-        const characterBottom = this.character.y + this.character.height;
-        const enemyTop = enemy.y;
-        const isFalling = this.character.speedY < 0;
-
-        if (!hasJumpedOnEnemy && isFalling && characterBottom > enemyTop && characterBottom < enemyTop + enemy.height * 0.5) {
-            enemy.hit();
-
-            if (enemy.isDead()) {
-                this.level.enemies.splice(index, 1);
-            }
-
-            this.character.speedY = 20;
-
-            hasJumpedOnEnemy = true;
-            return;
-        }
-
-        if (!hasJumpedOnEnemy && !this.character.isHurt()) {
-            this.character.hit();
-            this.healthStatusBar.setPercentage(this.character.energy);
-        }
-    });
-}
-
-//---
-
-/**
- * Checks for collisions between the character and collectible coins.
- */
-checkCoinCollisions() {
-    if (!this.characterIsDead) {
-        this.level.coins.forEach((coin, index) => {
-            if (this.character.isColliding(coin, { offsetX: 20, offsetY: 20 })) {
-                this.level.coins.splice(index, 1);
-                this.collectedCoins++;
-                this.coinStatusBar.setPercentage(this.collectedCoins, this.totalCoins);
-            }
-        });
-    }
-}
-
-//---
-
-/**
- * Checks for collisions between the character and collectible bottles.
- */
-checkBottleCollisions() {
-    if (!this.characterIsDead) {
-        this.level.bottles.forEach((bottle, index) => {
-            if (this.character.isColliding(bottle, { offsetX: 20, offsetY: 20 })) {
-                this.level.bottles.splice(index, 1);
-                this.collectedBottles++;
-                this.bottleStatusBar.setPercentage(this.collectedBottles, this.totalBottles);
-            }
-        });
-    }
-}
-
-//---
-
-/**
- * Checks if a bottle should be thrown based on keyboard input and collected bottles.
- */
-checkThrowAction() {
-    if (this.keyboard.SPACE && this.collectedBottles > 0) {
-        let bottle = new ThrowableObject(this.character.x, this.character.y, this.character.otherDirection);
-        this.throwableObjects.push(bottle);
-        this.collectedBottles--;
-        this.bottleStatusBar.setPercentage(this.collectedBottles, this.totalBottles);
-        this.keyboard.SPACE = false;
-    }
-}
-
-//---
-
-/**
- * Checks for collisions between thrown bottles and enemies.
- */
-checkThrowableCollisions() {
-    this.throwableObjects.forEach((bottle) => {
-        this.level.enemies.forEach((enemy) => {
-            if (bottle.isColliding(enemy) && !bottle.hasHit) {
-                enemy.hit();
-                bottle.hasHit = true;
-                if (enemy instanceof Endboss) {
-                    this.endbossHealthStatusBar.setPercentage(enemy.energy);
-                }
-            }
-        });
-    });
-}
-
-//---
-
-/**
- * Checks the state of the Endboss to determine if the game is won.
- */
-checkEndbossState() {
-    let endboss = this.level.enemies.find(e => e instanceof Endboss);
-    if (endboss && endboss.isDead() && endboss.isDeadAnimationComplete && !this.gameIsWon) {
-        this.triggerGameWon();
-    }
-}
 
     /**
-     * Triggers the "Game Won" state, stopping the game and starting the win animation.
-     */
-    triggerGameWon() {
-        this.gameIsWon = true;
-        this.gameIsRunning = false;
-        this.youWin.isGameWon = true;
-        this.youWin.startAnimation();
-        this.game_music.pause();
-        
-
-        let endboss = this.level.enemies.find(e => e instanceof Endboss);
-        if (endboss) {
-            endboss.stopAnimations = true;
-            endboss.loadImage(endboss.Images_DEAD[endboss.Images_DEAD.length - 1]);
-        }
-
-        let showWinButtonInterval = setInterval(() => {
-            if (this.youWin.isAnimationComplete) {
-                document.getElementById('end-screen').classList.remove('hidden');
-                document.getElementById('end-screen').classList.add('visible');
-                clearInterval(showWinButtonInterval);
-            }
-        }, 200);
-
-        allIntervals.push(showWinButtonInterval);
-    }
-
-    /**
-     * Triggers the "Game Over" state, stopping the game and starting the game over animation.
-     */
-    triggerGameOver() {
-        this.gameIsRunning = false;
-        this.characterIsDead = true;
-        this.gameOver.isGameOver = true;
-        this.gameOver.startAnimation();
-        this.game_music.pause();
-        this.game_over_sound.play();
-
-        let showGameOverButtonInterval = setInterval(() => {
-            if (this.gameOver.isAnimationComplete) {
-                document.getElementById('end-screen').classList.remove('hidden');
-                document.getElementById('end-screen').classList.add('visible');
-                clearInterval(showGameOverButtonInterval);
-            }
-        }, 200);
-
-        allIntervals.push(showGameOverButtonInterval);
-    }
-
-    /**
-     * The main game loop function. It clears the canvas, draws all objects,
-     * and requests the next animation frame to create the game loop.
+     * Main rendering loop. Draws all game objects, HUD elements, and manages the camera.
      */
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
         this.ctx.translate(this.camera_x, 0);
-        this.addObjectsToMap(this.level.backgroundObjects);
-        this.addObjectsToMap(this.level.coins);
-        this.addObjectsToMap(this.level.bottles);
-        this.addObjectsToMap(this.throwableObjects);
+        [this.level.backgroundObjects, this.level.coins, this.level.bottles, this.throwableObjects, this.level.enemies, this.level.clouds].forEach(group => this.addObjectsToMap(group));
         this.addToMap(this.character);
-        this.addObjectsToMap(this.level.enemies);
-        this.addObjectsToMap(this.level.clouds);
         this.ctx.translate(-this.camera_x, 0);
 
-        this.addToMap(this.healthStatusBar);
-        this.addToMap(this.coinStatusBar);
-        this.addToMap(this.bottleStatusBar);
+        [this.healthStatusBar, this.coinStatusBar, this.bottleStatusBar].forEach(obj => this.addToMap(obj));
 
         let endboss = this.level.enemies.find(e => e instanceof Endboss);
         if (endboss && endboss.spotCharacter && !endboss.isDead()) {
@@ -350,44 +112,40 @@ checkEndbossState() {
             this.addToMap(this.endbossHealthStatusBar);
         }
 
-        if (this.gameOver.isGameOver) {
-            this.gameOver.draw(this.ctx);
+        if (this.gameOver.isAnimating || this.gameOver.isAnimationComplete) {
             this.gameOver.animate();
+            this.gameOver.draw(this.ctx);
         }
 
-        if (this.youWin.isGameWon) {
-            this.youWin.draw(this.ctx);
+        if (this.youWin.isAnimating || this.youWin.isAnimationComplete) {
             this.youWin.animate();
+            this.youWin.draw(this.ctx);
         }
 
         requestAnimationFrame(() => this.draw());
     }
 
     /**
-     * Iterates over an array of objects and draws each one onto the canvas.
-     * @param {Array<DrawableObject>} objects - An array of objects to draw.
+     * Adds multiple objects to the canvas.
+     * @param {Array<DrawableObject>} objects - Array of drawable objects.
      */
     addObjectsToMap(objects) {
         objects.forEach(o => this.addToMap(o));
     }
 
     /**
-     * Adds a single object to the map. It handles image flipping for directional changes.
-     * @param {MovableObject} mo - The movable object to draw.
+     * Draws a single object on the canvas, handling direction flipping if needed.
+     * @param {MovableObject} mo - Object to draw.
      */
     addToMap(mo) {
-        if (mo.otherDirection) {
-            this.flipImage(mo);
-        }
+        if (mo.otherDirection) this.flipImage(mo);
         mo.draw(this.ctx);
-        if (mo.otherDirection) {
-            this.flipImageBack(mo);
-        }
+        if (mo.otherDirection) this.flipImageBack(mo);
     }
 
     /**
-     * Flips the image horizontally for drawing in the opposite direction.
-     * @param {MovableObject} mo - The object whose image should be flipped.
+     * Flips the object horizontally for drawing.
+     * @param {MovableObject} mo - Object to flip.
      */
     flipImage(mo) {
         this.ctx.save();
@@ -397,8 +155,8 @@ checkEndbossState() {
     }
 
     /**
-     * Restores the canvas state to draw the image correctly after flipping.
-     * @param {MovableObject} mo - The object whose image was flipped.
+     * Restores the canvas state after flipping an object.
+     * @param {MovableObject} mo - Object to restore.
      */
     flipImageBack(mo) {
         mo.x = mo.x * -1;
@@ -406,40 +164,69 @@ checkEndbossState() {
     }
 
     /**
-     * Toggles the sound on and off and changes the mute icon accordingly.
+     * Toggles mute status for all game sounds.
      */
     toggleMute() {
-        let muteIcon = document.getElementById('mute-icon');
-
-        if (this.isMuted) {
-            muteIcon.src = 'img/unmute.png';
-            this.game_music.play();
-            this.isMuted = false;
-        } else {
-            muteIcon.src = 'img/mute.png'; 
-            this.game_music.pause();
-            this.isMuted = true;
-        }
+        this.isMuted = !this.isMuted;
+        this.sounds.forEach(s => s.muted = this.isMuted);
+        if (!this.isMuted && this.game_music.paused) this.game_music.play();
+        document.getElementById('mute-icon').src = this.isMuted ? 'img/mute.png' : 'img/unmute.png';
         localStorage.setItem('isMusicMuted', this.isMuted);
     }
 
     /**
-     * Loads the saved music mute status from local storage.
-     * It retrieves the 'isMusicMuted' flag, updates the
-     * `isMuted` property of the class, and sets the
-     * corresponding mute icon and audio state.
+     * Loads the saved mute status from local storage and applies it.
      */
     loadMuteStatus() {
-        const savedStatus = localStorage.getItem('isMusicMuted');
-        if (savedStatus !== null) {
-            this.isMuted = savedStatus === 'true';
-            if (this.isMuted) {
-                document.getElementById('mute-icon').src = 'img/mute.png';
-                this.game_music.pause();
-            } else {
-                document.getElementById('mute-icon').src = 'img/unmute.png';
-                this.game_music.play();
+        const saved = localStorage.getItem('isMusicMuted');
+        if (saved !== null) this.isMuted = saved === 'true';
+        if (this.isMuted) this.game_music.pause(); else this.game_music.play();
+        document.getElementById('mute-icon').src = this.isMuted ? 'img/mute.png' : 'img/unmute.png';
+    }
+
+    /**
+     * Triggers the "Game Over" state when the character dies.
+     * Stops the game, starts the game over animation, pauses the music,
+     * and displays the end screen when the animation is complete.
+     */
+    triggerGameOver() {
+        this.gameIsRunning = false;
+        this.characterIsDead = true;
+
+        this.gameOver.isGameOver = true;
+        this.gameOver.isAnimating = true;
+        this.gameOver.startAnimation();
+        this.game_music.pause();
+        this.game_over_sound.play();
+
+        let interval = setInterval(() => {
+            if (this.gameOver.isAnimationComplete) {
+                document.getElementById('end-screen').classList.remove('hidden');
+                document.getElementById('end-screen').classList.add('visible');
+                clearInterval(interval);
             }
-        }
+        }, 50);
+    }
+
+    /**
+     * Triggers the "Game Won" state when the player defeats the endboss.
+     * Stops the game, starts the win animation, pauses the music,
+     * and displays the end screen when the animation is complete.
+     */
+    triggerGameWon() {
+        this.gameIsRunning = false;
+        this.gameIsWon = true;
+
+        this.youWin.isAnimating = true;
+        this.youWin.startAnimation();
+        this.game_music.pause();
+
+        let interval = setInterval(() => {
+            if (this.youWin.isAnimationComplete) {
+                document.getElementById('end-screen').classList.remove('hidden');
+                document.getElementById('end-screen').classList.add('visible');
+                clearInterval(interval);
+            }
+        }, 50);
     }
 }

@@ -86,7 +86,6 @@ class Character extends MovableObjetcs {
     frameDelay = 50;
     animationLoop = true;
 
-    // --- Idle/Sleep Tracking ---
     lastActionTime = Date.now();
     isSleeping = false;
 
@@ -163,18 +162,18 @@ class Character extends MovableObjetcs {
         }
 
         if (this.isHurt()) {
-            this.switchAnimation(this.Images_HURT, 120, false);
-            if (!this.hurt_sound_played) {
-                this.hurt_sound.play().catch(() => {});
-                this.hurt_sound_played = true;
-            }
+            this.switchAnimation(this.Images_HURT, 120, true);
             this.advanceAnimation(50);
+
+            if (this.hurt_sound.paused) {
+                this.hurt_sound.play().catch(() => {});
+            }
             return;
         } else {
-            this.hurt_sound_played = false;
+            this.hurt_sound.pause();
+            this.hurt_sound.currentTime = 0;
         }
 
-        // Sleep-Check
         if (!this.isSleeping && Date.now() - this.lastActionTime > 10000) {
             this.isSleeping = true;
             this.switchAnimation(this.Images_SLEEPING, 200, true);
@@ -187,7 +186,7 @@ class Character extends MovableObjetcs {
 
         if (this.isAboveGround()) {
             if (!this.jumpAnimationPlayed) {
-                this.switchAnimation(this.Images_JUMPING, 50, false);
+                this.switchAnimation(this.Images_JUMPING, 150, false);
                 this.jumpAnimationPlayed = true;
             }
             this.advanceAnimation(50);

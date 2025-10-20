@@ -1,8 +1,5 @@
 body {
-    background-image: url('Desert.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    background-color: sandybrown;
 }
 
 button {
