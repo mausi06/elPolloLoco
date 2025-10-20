@@ -131,26 +131,20 @@ class World {
      * Continuously checks for various collisions and game state changes
      * at a set interval.
      */
-    /**
- * Continuously checks for various collisions and game state changes
- * at a set interval.
- */
-checkCollisions() {
-    let collisionInterval = setInterval(() => {
-        if (this.gameIsRunning) {
-            this.checkCharacterState();
-            this.checkEnemyCollisions();
-            this.checkCoinCollisions();
-            this.checkBottleCollisions();
-            this.checkThrowAction();
-            this.checkThrowableCollisions();
-        }
-        this.checkEndbossState();
-    }, 200);
-
-    allIntervals.push(collisionInterval);
-}
-
+    checkCollisions() {
+        let collisionInterval = setInterval(() => {
+            if (this.gameIsRunning) {
+                this.checkCharacterState();
+                this.checkEnemyCollisions();
+                this.checkCoinCollisions();
+                this.checkBottleCollisions();
+                this.checkThrowAction();
+                this.checkThrowableCollisions();
+            }
+            this.checkEndbossState();
+        }, 1000 / 60);
+        allIntervals.push(collisionInterval);
+    }
 //---
 
 /**
@@ -168,24 +162,35 @@ checkCharacterState() {
  * Checks for collisions between the character and all enemies.
  */
 checkEnemyCollisions() {
-    if (!this.characterIsDead) {
-        this.level.enemies.forEach((enemy) => {
-            if (this.character.isColliding(enemy)) {
-                if (this.character.speedY < 0 && this.character.y + this.character.height > enemy.y + 20) {
-                    enemy.hit();
-                    this.character.jump();
-                } else if (enemy instanceof Endboss) {
-                    let timeSinceLastAttack = new Date().getTime() - enemy.lastAttackTime;
-                    if (timeSinceLastAttack > 1500) {
-                        enemy.attack();
-                    }
-                } else {
-                    this.character.hit();
-                    this.healthStatusBar.setPercentage(this.character.energy);
-                }
+    if (this.characterIsDead) return;
+
+    let hasJumpedOnEnemy = false;g
+
+    this.level.enemies.forEach((enemy, index) => {
+        if (!this.character.isColliding(enemy) || enemy.isDead()) return;
+
+        const characterBottom = this.character.y + this.character.height;
+        const enemyTop = enemy.y;
+        const isFalling = this.character.speedY < 0;
+
+        if (!hasJumpedOnEnemy && isFalling && characterBottom > enemyTop && characterBottom < enemyTop + enemy.height * 0.5) {
+            enemy.hit();
+
+            if (enemy.isDead()) {
+                this.level.enemies.splice(index, 1);
             }
-        });
-    }
+
+            this.character.speedY = 20;
+
+            hasJumpedOnEnemy = true;
+            return;
+        }
+
+        if (!hasJumpedOnEnemy && !this.character.isHurt()) {
+            this.character.hit();
+            this.healthStatusBar.setPercentage(this.character.energy);
+        }
+    });
 }
 
 //---
@@ -196,7 +201,7 @@ checkEnemyCollisions() {
 checkCoinCollisions() {
     if (!this.characterIsDead) {
         this.level.coins.forEach((coin, index) => {
-            if (this.character.isColliding(coin)) {
+            if (this.character.isColliding(coin, { offsetX: 20, offsetY: 20 })) {
                 this.level.coins.splice(index, 1);
                 this.collectedCoins++;
                 this.coinStatusBar.setPercentage(this.collectedCoins, this.totalCoins);
@@ -213,7 +218,7 @@ checkCoinCollisions() {
 checkBottleCollisions() {
     if (!this.characterIsDead) {
         this.level.bottles.forEach((bottle, index) => {
-            if (this.character.isColliding(bottle)) {
+            if (this.character.isColliding(bottle, { offsetX: 20, offsetY: 20 })) {
                 this.level.bottles.splice(index, 1);
                 this.collectedBottles++;
                 this.bottleStatusBar.setPercentage(this.collectedBottles, this.totalBottles);

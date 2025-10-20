@@ -1,8 +1,8 @@
 let canvas;
 let world;
 let keyboard = new Keyboard();
-let allIntervals = []; // Array zum Speichern aller Intervall-IDs
-let isGameStarted = false; // Neue Variable, um den Spielstatus zu verfolgen
+let allIntervals = [];
+let isGameStarted = false;
 
 /**
  * Checks if the panel should be visible based on screen size and game status.
@@ -33,7 +33,7 @@ function init() {
 function startGame() {
     document.getElementById('start-screen').classList.add('hidden');
     isGameStarted = true;
-    checkPanelVisibility(); // Überprüfe Sichtbarkeit beim Start
+    checkPanelVisibility();
     init();
     document.getElementById('mute-button').style.display = 'flex';
     if (!world.isMuted) {
@@ -74,7 +74,6 @@ function restartGame() {
  * Waits for the DOM to be fully loaded before adding event listeners.
  */
 document.addEventListener('DOMContentLoaded', () => {
-    // Füge den Resize-Event-Listener hinzu, um die Sichtbarkeit kontinuierlich zu prüfen
     window.addEventListener('resize', checkPanelVisibility);
 
     document.getElementById('btn-left').addEventListener('touchstart', (e) => {

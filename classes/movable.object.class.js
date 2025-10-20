@@ -48,16 +48,24 @@ class MovableObjetcs extends DrawableObject {
     }
 
     /**
-     * Checks if this object is colliding with another object.
+     * Checks if this object is colliding with another object, with optional hitbox padding.
+     * You can pass custom offsets to make the collision more precise.
+     * 
      * @param {MovableObjetcs} mo - Another movable object to check collision with
+     * @param {object} [options] - Optional offsets to shrink the hitbox
+     * @param {number} [options.offsetX=0] - Horizontal shrink (pixels)
+     * @param {number} [options.offsetY=0] - Vertical shrink (pixels)
      * @returns {boolean} True if colliding, false otherwise
      */
-    isColliding(mo) {
+    isColliding(mo, options = {}) {
+        const offsetX = options.offsetX || 0;
+        const offsetY = options.offsetY || 0;
+
         return (
-            this.x + this.width > mo.x &&
-            this.x < mo.x + mo.width &&
-            this.y + this.height > mo.y &&
-            this.y < mo.y + mo.height
+            this.x + offsetX + this.width - 2 * offsetX > mo.x + offsetX &&
+            this.x + offsetX < mo.x + mo.width - offsetX &&
+            this.y + offsetY + this.height - 2 * offsetY > mo.y + offsetY &&
+            this.y + offsetY < mo.y + mo.height - offsetY
         );
     }
 

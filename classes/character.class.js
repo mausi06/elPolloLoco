@@ -209,7 +209,7 @@ class Character extends MovableObjetcs {
     switchAnimation(images, frameDelayMs = 50, loop = true) {
         if (this.currentAnimation !== images) {
             this.currentAnimation = images;
-            this.currentFrameIndex = -1; // -1 = noch kein Frame gesetzt
+            this.currentFrameIndex = -1;
             this.frameTimer = 0;
             this.frameDelay = frameDelayMs;
             this.animationLoop = !!loop;

@@ -4,7 +4,7 @@
  */
 class Coins extends MovableObjetcs {
     /** @type {number} Vertical position of the coin */
-    y = 300;
+    y = 200;
 
     /** @type {number} Width of the coin image */
     width = 100;
