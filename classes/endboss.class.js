@@ -124,13 +124,7 @@ class Endboss extends MovableObjetcs {
         if (this.stopAnimations) return;
 
         if (this.isDead()) {
-            if (!this.isDeadAnimationComplete) {
-                this.playAnimation(this.Images_DEAD);
-                setTimeout(() => {
-                    this.isDeadAnimationComplete = true;
-                    this.loadImage(this.Images_DEAD[this.Images_DEAD.length - 1]);
-                }, this.Images_DEAD.length * 600);
-            }
+            this.handleDeathAnimation();
         } else if (this.isHurt) {
             this.playAnimation(this.Images_HURT);
         } else if (this.isAttacking) {
@@ -143,42 +137,74 @@ class Endboss extends MovableObjetcs {
     }
 
     /**
+     * Handles the Endboss death animation and sets the final frame when complete.
+     */
+    handleDeathAnimation() {
+        if (this.isDeadAnimationComplete) return;
+
+        this.playAnimation(this.Images_DEAD);
+        setTimeout(() => {
+            this.isDeadAnimationComplete = true;
+            this.loadImage(this.Images_DEAD[this.Images_DEAD.length - 1]);
+        }, this.Images_DEAD.length * 600);
+    }
+
+    /**
      * Handles the Endboss's movement towards the character and its attack logic.
      * The Endboss walks toward the character once spotted and attacks when in range, respecting the cooldown.
      */
     handleMovementAndAttack() {
         if (this.stopAnimations) return;
 
-        if (this.world.character.x >= 2200 && !this.spotCharacter) {
-            this.spotCharacter = true;
-            setTimeout(() => {
-                this.isWalking = true;
-                this.alertPlayed = true;
-            }, this.Images_ALERT.length * 200);
-        }
+        this.detectCharacter();
 
         if (!this.spotCharacter || !this.alertPlayed || this.isHurt || this.isDead()) return;
 
-        let distance = this.x - this.world.character.x;
+        const distance = this.x - this.world.character.x;
+        Math.abs(distance) < this.attackRange ? this.attack() : this.moveTowardsCharacter(distance);
+    }
 
-        if (Math.abs(distance) < this.attackRange) {
-            this.isWalking = false;
-            this.isAttacking = true;
-            if (new Date().getTime() - this.lastAttackTime > this.attackCooldown) {
-                this.world.character.hit();
-                this.world.healthStatusBar.setPercentage(this.world.character.energy);
-                this.lastAttackTime = new Date().getTime();
-            }
-        } else {
-            this.isAttacking = false;
+    /**
+     * Detects when the character enters the Endboss's range and triggers alert/walking state.
+     */
+    detectCharacter() {
+        if (this.world.character.x < 2200 || this.spotCharacter) return;
+        this.spotCharacter = true;
+        setTimeout(() => {
             this.isWalking = true;
-            if (distance > 0) {
-                this.moveLeft();
-                this.otherDirection = false;
-            } else {
-                this.moveRight();
-                this.otherDirection = true;
-            }
+            this.alertPlayed = true;
+        }, this.Images_ALERT.length * 200);
+    }
+
+    /**
+     * Handles Endboss attack behavior and cooldown timing.
+     */
+    attack() {
+        this.isWalking = false;
+        this.isAttacking = true;
+
+        const now = Date.now();
+        if (now - this.lastAttackTime > this.attackCooldown) {
+            this.world.character.hit();
+            this.world.healthStatusBar.setPercentage(this.world.character.energy);
+            this.lastAttackTime = now;
+        }
+    }
+
+    /**
+     * Moves the Endboss toward the character, updating direction and state.
+     * @param {number} distance - Horizontal distance between Endboss and character.
+     */
+    moveTowardsCharacter(distance) {
+        this.isAttacking = false;
+        this.isWalking = true;
+
+        if (distance > 0) {
+            this.moveLeft();
+            this.otherDirection = false;
+        } else {
+            this.moveRight();
+            this.otherDirection = true;
         }
     }
 

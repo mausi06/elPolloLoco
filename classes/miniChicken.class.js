@@ -53,8 +53,10 @@ class MiniChicken extends MovableObjetcs {
 
         setInterval(() => {
             if (this.isDead()) {
-                this.playAnimation(this.IMAGES_DEAD);
-                setTimeout(() => this.removeSelfFromWorld(), 2000);
+                if (!this.deathTriggered) {
+                    this.playAnimation(this.IMAGES_DEAD);
+                    this.deathTriggered = true;
+                }
             } else if (world && world.gameIsRunning) {
                 this.playAnimation(this.IMAGES_WALKING);
             }

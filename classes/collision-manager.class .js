@@ -71,7 +71,16 @@ class CollisionManager {
 
         if (isFalling && charBottom > enemyTop && charBottom < enemyTop + enemy.height * 0.5) {
             enemy.hit();
-            if (enemy.isDead()) this.world.level.enemies.splice(index, 1);
+
+            if (enemy.isDead() && !enemy.deathTriggered) {
+                enemy.deathTriggered = true;
+                enemy.playAnimation(enemy.IMAGES_DEAD);
+
+                setTimeout(() => {
+                    this.world.level.enemies = this.world.level.enemies.filter(e => e !== enemy);
+                }, 600);
+            }
+
             this.world.character.speedY = 20;
             return true;
         }
@@ -99,20 +108,34 @@ class CollisionManager {
      * Handles collisions with normal enemies when the character hasn't jumped on them.
      * @param {boolean} hasJumpedOnEnemy - Indicates if the character just jumped on an enemy.
      */
-    handleNormalEnemyCollision(hasJumpedOnEnemy) {
-        if (!hasJumpedOnEnemy && !this.world.character.isHurt()) {
-            this.world.character.hit();
+    handleNormalEnemyCollision() {
+        if (this.world.characterIsDead) return;
 
-            this.world.level.enemies.forEach(enemy => {
-                if (enemy instanceof MiniChicken || enemy instanceof Chicken) {
-                    if (this.world.character.isColliding(enemy)) {
+        const now = Date.now();
+
+        this.world.level.enemies.forEach(enemy => {
+            if (enemy.isDead()) return;
+
+            if (this.world.character.isColliding(enemy)) {
+                const charBottom = this.world.character.y + this.world.character.height;
+                const charTop = this.world.character.y;
+                const enemyTop = enemy.y;
+                const enemyBottom = enemy.y + enemy.height;
+
+                // Ha karakter lefelé érkezik és felülről van az enemy tetején, ne sérüljön
+                const isJumpingOnEnemy = this.world.character.speedY < 0 
+                                    ? false 
+                                    : charBottom > enemyTop && charTop < enemyBottom;
+
+                if (!isJumpingOnEnemy) {
+                    if (!enemy.lastHitTime || now - enemy.lastHitTime > 400) {
                         this.world.character.hit();
+                        this.world.healthStatusBar.setPercentage(this.world.character.energy);
+                        enemy.lastHitTime = now;
                     }
                 }
-            });
-
-            this.world.healthStatusBar.setPercentage(this.world.character.energy);
-        }
+            }
+        });
     }
 
     /**

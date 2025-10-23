@@ -1,5 +1,7 @@
 body {
     background-color: sandybrown;
+    font-family: 'gilgont', Arial, Helvetica, sans-serif;
+    padding: 16px;
 }
 
 button {
@@ -10,3 +12,8 @@ button {
     cursor: pointer;
     transition: transform 0.2s, background-color 0.2s;
 }
+
+@font-face {
+    font-family: 'gilgont';
+    src: url('fonts/gilgont.ttf') format('truetype');
+} 

@@ -141,14 +141,14 @@ a{
 }
 
 #panel button {
-    width: 30px;
-    height: 30px;
+    width: 35px;
+    height: 35px;
     margin: 5px;
     font-size: 15px;
     font-weight: bold;
     border-radius: 50%;
     border: none;
-    background: rgba(255,255,255,0.2);
+    background: rgba(14, 6, 6, 0.747);
     color: white;
     box-shadow: 0 4px 6px rgba(0,0,0,0.4);
     touch-action: none;

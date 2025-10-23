@@ -52,21 +52,18 @@ class Chicken extends MovableObjetcs {
      * Moves the chicken left continuously if alive, and plays walking or death animations.
      */
     animate() {
-        // Interval for movement
         setInterval(() => {
             if (world && world.gameIsRunning && !this.isDead()) {
                 this.moveLeft();
             }
         }, 1000 / 60);
 
-        // Interval for animations
         setInterval(() => {
             if (this.isDead()) {
-                this.playAnimation(this.IMAGES_DEAD);
-                // Remove the chicken from the world after the death animation
-                setTimeout(() => {
-                    this.removeSelfFromWorld();
-                }, 2000);
+                if (!this.deathTriggered) {
+                    this.playAnimation(this.IMAGES_DEAD);
+                    this.deathTriggered = true;
+                }
             } else if (world && world.gameIsRunning) {
                 this.playAnimation(this.IMAGES_WALKING);
             }

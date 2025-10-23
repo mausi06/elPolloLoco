@@ -164,24 +164,115 @@ class World {
     }
 
     /**
-     * Toggles mute status for all game sounds.
+     * Toggles mute status for all game sounds (music + effects).
+     * Updates sound states, the mute icon, and saves preference to localStorage.
      */
     toggleMute() {
         this.isMuted = !this.isMuted;
-        this.sounds.forEach(s => s.muted = this.isMuted);
-        if (!this.isMuted && this.game_music.paused) this.game_music.play();
-        document.getElementById('mute-icon').src = this.isMuted ? 'img/mute.png' : 'img/unmute.png';
+        this.applyMuteToAllSounds();
+        this.updateMuteIcon();
         localStorage.setItem('isMusicMuted', this.isMuted);
     }
 
     /**
-     * Loads the saved mute status from local storage and applies it.
+     * Applies the mute/unmute state to all relevant game sounds.
+     * Pauses sounds if muted, resumes music if unmuted.
+     */
+    applyMuteToAllSounds() {
+        const allSounds = this.getAllSounds();
+
+        allSounds.forEach(sound => {
+            sound.muted = this.isMuted;
+            if (this.isMuted) sound.pause();
+        });
+
+        if (!this.isMuted && this.game_music.paused) {
+            this.game_music.play().catch(() => {});
+        }
+    }
+
+    /**
+     * Returns all active sound elements used in the game.
+     * @returns {HTMLAudioElement[]} Array of sound objects.
+     */
+    getAllSounds() {
+        return [
+            this.game_music,
+            this.game_over_sound,
+            this.character.walking_sound,
+            this.character.jump_sound,
+            this.character.hurt_sound,
+            this.character.snoring_sound,
+        ].filter(Boolean);
+    }
+
+    /**
+     * Updates the mute/unmute icon based on current mute state.
+     */
+    updateMuteIcon() {
+        const muteIcon = document.getElementById('mute-icon');
+        if (muteIcon) {
+            muteIcon.src = this.isMuted ? 'img/mute.png' : 'img/unmute.png';
+        }
+    }
+
+    /**
+     * Loads the saved mute status from local storage and applies it to all sounds.
+     * Ensures the correct icon and sound states are set on startup.
      */
     loadMuteStatus() {
+        this.loadSavedMuteState();
+        this.applyMuteToAllSounds();
+        this.updateMuteIcon();
+    }
+
+    /**
+     * Loads the saved mute preference from localStorage.
+     * Defaults to unmuted if no value is found.
+     */
+    loadSavedMuteState() {
         const saved = localStorage.getItem('isMusicMuted');
-        if (saved !== null) this.isMuted = saved === 'true';
-        if (this.isMuted) this.game_music.pause(); else this.game_music.play();
-        document.getElementById('mute-icon').src = this.isMuted ? 'img/mute.png' : 'img/unmute.png';
+        this.isMuted = saved ? saved === 'true' : false;
+    }
+
+    /**
+     * Applies the current mute state to all game sounds and manages playback.
+     */
+    applyMuteToAllSounds() {
+        const allSounds = this.getAllSounds();
+
+        allSounds.forEach(sound => sound.muted = this.isMuted);
+
+        if (this.isMuted) {
+            this.game_music.pause();
+        } else {
+            this.game_music.play().catch(() => {});
+        }
+    }
+
+    /**
+     * Returns all active sound elements used in the game.
+     * @returns {HTMLAudioElement[]} Array of sound objects.
+     */
+    getAllSounds() {
+        return [
+            this.game_music,
+            this.game_over_sound,
+            this.character.walking_sound,
+            this.character.jump_sound,
+            this.character.hurt_sound,
+            this.character.snoring_sound,
+        ].filter(Boolean);
+    }
+
+    /**
+     * Updates the mute/unmute icon based on the current mute state.
+     */
+    updateMuteIcon() {
+        const muteIcon = document.getElementById('mute-icon');
+        if (muteIcon) {
+            muteIcon.src = this.isMuted ? 'img/mute.png' : 'img/unmute.png';
+        }
     }
 
     /**
