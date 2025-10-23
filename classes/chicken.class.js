@@ -3,37 +3,20 @@
  * Extends MovableObjetcs for movement and collision logic.
  */
 class Chicken extends MovableObjetcs {
-    /** @type {number} Vertical position of the chicken */
     y = 330;
-
-    /** @type {number} Width of the chicken */
     width = 70;
-
-    /** @type {number} Height of the chicken */
     height = 100;
-
-    /** @type {string[]} Image paths for walking animation */
     IMAGES_WALKING = [
         'img/3_enemies_chicken/chicken_normal/1_walk/1_w.png',
         'img/3_enemies_chicken/chicken_normal/1_walk/2_w.png',
         'img/3_enemies_chicken/chicken_normal/1_walk/3_w.png'
     ];
-
-    /** @type {string[]} Image paths for death animation */
     IMAGES_DEAD = [
         'img/3_enemies_chicken/chicken_normal/2_dead/dead.png'
     ];
-
-    /** @type {number} Movement speed of the chicken */
     speed;
-
-    /** @type {number} Health points of the chicken */
     energy;
-
-    /**
-     * Creates a Chicken instance.
-     * Loads all animations, sets random horizontal position and speed, and starts animation loops.
-     */
+    
     constructor() {
         super();
         this.loadImage(this.IMAGES_WALKING[0]);

@@ -3,16 +3,9 @@
  * Extends MovableObjetcs and handles walking, death animation, and removal from the world.
  */
 class MiniChicken extends MovableObjetcs {
-    /** @type {number} Vertical position of the MiniChicken */
     y = 350;
-
-    /** @type {number} Width of the MiniChicken */
     width = 50;
-
-    /** @type {number} Height of the MiniChicken */
     height = 70;
-
-    /** @type {string[]} Images for walking animation */
     IMAGES_WALKING = [
         'img/3_enemies_chicken/chicken_small/1_walk/1_w.png',
         'img/3_enemies_chicken/chicken_small/1_walk/2_w.png',
@@ -23,11 +16,7 @@ class MiniChicken extends MovableObjetcs {
     IMAGES_DEAD = [
         'img/3_enemies_chicken/chicken_small/2_dead/dead.png',
     ];
-
-    /**
-     * Creates a MiniChicken instance.
-     * Loads images, sets initial position, speed, and starts animation.
-     */
+    
     constructor() {
         super();
         this.loadImage(this.IMAGES_WALKING[0]);

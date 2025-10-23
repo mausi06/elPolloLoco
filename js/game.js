@@ -73,81 +73,54 @@ function restartGame() {
 /**
  * Waits for the DOM to be fully loaded before adding event listeners.
  */
-document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', checkPanelVisibility);
 
-    document.getElementById('btn-left').addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        keyboard.LEFT = true;
-    });
-    document.getElementById('btn-left').addEventListener('touchend', (e) => {
-        e.preventDefault();
-        keyboard.LEFT = false;
-    });
+    initTouchControls(keyboard);
+    initKeyboardControls(keyboard);
+});
 
-    document.getElementById('btn-right').addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        keyboard.RIGHT = true;
-    });
-    document.getElementById('btn-right').addEventListener('touchend', (e) => {
-        e.preventDefault();
-        keyboard.RIGHT = false;
-    }); 
-
-    document.getElementById('btn-jump').addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        keyboard.UP = true;
-    });
-    document.getElementById('btn-jump').addEventListener('touchend', (e) => {
-        e.preventDefault();
-        keyboard.UP = false;
-    });
-
-    document.getElementById('btn-throw').addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        keyboard.SPACE = true;
-    });
-    document.getElementById('btn-throw').addEventListener('touchend', (e) => {
-        e.preventDefault();
-        keyboard.SPACE = false;
-    });
+function initKeyboardControls(keyboard) {
+    const keyMap = {
+        37: 'LEFT',
+        38: 'UP',
+        39: 'RIGHT',
+        40: 'DOWN',
+        32: 'SPACE'
+    };
 
     window.addEventListener("keydown", (e) => {
-        if ([37, 38, 39, 40, 32].includes(e.keyCode)) {
+        if (keyMap[e.keyCode]) {
             e.preventDefault();
-        }
-        if (e.keyCode == 39) { 
-            keyboard.RIGHT = true;
-        }
-        if (e.keyCode == 37) {
-            keyboard.LEFT = true;
-        }
-        if (e.keyCode == 38) { 
-            keyboard.UP = true;
-        }
-        if (e.keyCode == 40) {
-            keyboard.DOWN = true;
-        }
-        if (e.keyCode == 32) {
-            keyboard.SPACE = true;
+            keyboard[keyMap[e.keyCode]] = true;
         }
     });
 
     window.addEventListener("keyup", (e) => {
-        if (e.keyCode == 39) {
-            keyboard.RIGHT = false;
-        }
-        if (e.keyCode == 37) {
-            keyboard.LEFT = false;
-        }
-        if (e.keyCode == 38) {
-            keyboard.UP = false;
-        }
-        if (e.keyCode == 40) {
-            keyboard.DOWN = false;
-        }
-        if (e.keyCode == 32) {
-            keyboard.SPACE = false;
+        if (keyMap[e.keyCode]) {
+            e.preventDefault();
+            keyboard[keyMap[e.keyCode]] = false;
         }
     });
-});
+}
+
+function initTouchControls(keyboard) {
+    const buttons = [
+        { id: 'btn-left', key: 'LEFT' },
+        { id: 'btn-right', key: 'RIGHT' },
+        { id: 'btn-jump', key: 'UP' },
+        { id: 'btn-throw', key: 'SPACE' },
+    ];
+
+    buttons.forEach(({ id, key }) => {
+        const btn = document.getElementById(id);
+        btn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            keyboard[key] = true;
+        });
+        btn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            keyboard[key] = false;
+        });
+    });
+}

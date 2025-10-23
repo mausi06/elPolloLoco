@@ -3,22 +3,11 @@
  * Extends DrawableObject and adds physics, movement, collision, and animation handling.
  */
 class MovableObjetcs extends DrawableObject {
-    /** @type {number} Horizontal movement speed */
     speed = 0.2;
-
-    /** @type {boolean} Flag indicating if the object is facing the other direction */
     otherDirection = false;
-
-    /** @type {number} Vertical speed (for jumping/falling) */
     speedY = 0;
-
-    /** @type {number} Gravity acceleration applied to vertical movement */
     acceleration = 2;
-
-    /** @type {number} Current energy/health of the object */
     energy = 100;
-
-    /** @type {number} Timestamp of the last hit taken */
     lastHit = 0;
 
     /**
@@ -50,12 +39,6 @@ class MovableObjetcs extends DrawableObject {
     /**
      * Checks if this object is colliding with another object, with optional hitbox padding.
      * You can pass custom offsets to make the collision more precise.
-     * 
-     * @param {MovableObjetcs} mo - Another movable object to check collision with
-     * @param {object} [options] - Optional offsets to shrink the hitbox
-     * @param {number} [options.offsetX=0] - Horizontal shrink (pixels)
-     * @param {number} [options.offsetY=0] - Vertical shrink (pixels)
-     * @returns {boolean} True if colliding, false otherwise
      */
     isColliding(mo, options = {}) {
         const offsetX = options.offsetX || 0;

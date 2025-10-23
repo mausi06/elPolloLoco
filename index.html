@@ -31,9 +31,8 @@
     <link rel="icon" href="img/2_character_pepe/1_idle/idle/I-1.png" />
 </head>
 <body>
-    <h1>El Pollo Locco</h1>
-
     <div id="game-container">
+        <div style="display: flex; justify-content: center; align-items: center;"><h1>El Pollo Locco</h1></div>
         <canvas id="canvas" width="720" height="480"></canvas>
 
         <div id="mute-button" class="hidden" onclick="world.toggleMute()">
@@ -55,9 +54,6 @@
         <a href="impressum.html?from=start">Impressum</a>
     </div>
 
-    <a href="impressum.html?from=game">Impressum</a>
-    
-    
     <div id="panel">
         <div id="panel-left">
             <button id="btn-left">←</button>
@@ -67,6 +63,11 @@
             <button id="btn-jump">⤒</button>
             <button id="btn-throw">🥤</button>
         </div>
+    </div>
+
+    <div id="rotate-warning">
+        <div class="device-icon"></div>
+        <p>Bitte Gerät drehen!</p>
     </div>
 </body>
 </html>

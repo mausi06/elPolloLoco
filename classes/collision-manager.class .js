@@ -2,14 +2,8 @@
  * Handles all collisions and interactions between the character and game objects.
  */
 class CollisionManager {
-    /**
-     * Creates a CollisionManager.
-     * @param {World} world - Reference to the main game world.
-     */
     constructor(world) {
-        /** @type {World} */
-        this.world = world;
-        /** @type {number} Timestamp of the last time the character hit the endboss. */
+        this.world = world
         this.lastEndbossHitTime = 0;
     }
 

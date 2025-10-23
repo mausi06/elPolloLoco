@@ -3,23 +3,16 @@
  * Extends MovableObjetcs and handles throwing, gravity, and rotation animation.
  */
 class ThrowableObject extends MovableObjetcs {
-    /** @type {string[]} Array of images for bottle rotation animation */
-    Images_Bottle = [
+    IMAGES_Bottle = [
         'img/6_salsa_bottle/bottle_rotation/1_bottle_rotation.png',
         'img/6_salsa_bottle/bottle_rotation/2_bottle_rotation.png',
         'img/6_salsa_bottle/bottle_rotation/3_bottle_rotation.png',
         'img/6_salsa_bottle/bottle_rotation/4_bottle_rotation.png'
     ];
 
-    /**
-     * Creates a ThrowableObject instance at given position and direction.
-     * @param {number} x - Initial x-coordinate
-     * @param {number} y - Initial y-coordinate
-     * @param {boolean} otherDirection - True if thrown to the left, false to the right
-     */
     constructor(x, y, otherDirection) {
         super().loadImage('img/6_salsa_bottle/bottle_rotation/1_bottle_rotation.png');
-        this.loadImages(this.Images_Bottle);
+        this.loadImages(this.IMAGES_Bottle);
         this.x = x;
         this.y = y;
         this.height = 60;
@@ -48,7 +41,7 @@ class ThrowableObject extends MovableObjetcs {
      */
     animate() {
         setInterval(() => {
-            this.playAnimation(this.Images_Bottle);
+            this.playAnimation(this.IMAGES_Bottle);
         }, 60);
     }
 }

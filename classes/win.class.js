@@ -6,22 +6,11 @@
  * @extends DrawableObject
  */
 class YouWin extends DrawableObject {
-    /** @type {boolean} Indicates whether the win screen animation is running. */
     isAnimating = false;
-
-    /** @type {number} The final Y position where the animation should stop. */
     targetY = 0;
-
-    /** @type {number} The vertical speed at which the win image moves down. */
     speed = 5;
-
-    /** @type {boolean} Indicates whether the animation has fully completed. */
     isAnimationComplete = false;
 
-    /**
-     * Creates a new instance of the "You Win" screen.
-     * Loads the image, sets size and initial position (off-screen above the canvas).
-     */
     constructor() {
         super();
         this.loadImage('img/You won, you lost/You Win A.png');

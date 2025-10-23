@@ -3,7 +3,6 @@
  * Extends DrawableObject to display different images based on collected coins.
  */
 class CoinStatusBar extends DrawableObject {
-    /** @type {string[]} Array of image paths representing different coin collection stages */
     IMAGES = [
         'img/7_statusbars/1_statusbar/1_statusbar_coin/blue/0.png',
         'img/7_statusbars/1_statusbar/1_statusbar_coin/blue/20.png',
@@ -13,13 +12,8 @@ class CoinStatusBar extends DrawableObject {
         'img/7_statusbars/1_statusbar/1_statusbar_coin/blue/100.png',
     ];
 
-    /** @type {number} Current percentage of coins collected */
     percentage = 0;
 
-    /**
-     * Creates a CoinStatusBar instance.
-     * Loads all images and sets default position and size.
-     */
     constructor() {
         super();
         this.loadImages(this.IMAGES);

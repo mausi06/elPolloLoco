@@ -10,7 +10,6 @@ html, body {
 
 body {
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
     margin: 0;
@@ -141,8 +140,8 @@ a{
 }
 
 #panel button {
-    width: 35px;
-    height: 35px;
+    width: 50px;
+    height: 50px;
     margin: 5px;
     font-size: 15px;
     font-weight: bold;
@@ -180,20 +179,69 @@ a{
     display: none;
 }
 
-@media only screen and (max-width: 720px){
+@media only screen and (max-height: 600px){
     canvas{
-        width: 100%;
-        height: auto;
-    }
-    h1{
-        display: none;
-    }
-}
-@media only screen and (max-height: 480px){
-    canvas{
+        width: auto;
         height: 100vh;
     }
     h1{
         display: none;
     }
+}
+@media only screen and (min-height: 600px){
+    #mute-button {
+        top: 124px;
+    }
+}
+
+
+#rotate-warning {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-family: 'gilgont', Arial, sans-serif;
+  font-size: 1.2rem;
+  z-index: 9999;
+  transition: opacity 0.3s ease;
+}
+
+.device-icon {
+  width: 80px;
+  height: 120px;
+  border: 3px solid white;
+  border-radius: 15px;
+  margin-bottom: 20px;
+  position: relative;
+  animation: rotateDevice 2s infinite ease-in-out;
+}
+
+.device-icon::after {
+  content: '';
+  position: absolute;
+  top: 40%;
+  left: 100%;
+  width: 20px;
+  height: 20px;
+  border-top: 3px solid white;
+  border-right: 3px solid white;
+  transform: rotate(45deg);
+  margin-left: 10px;
+  opacity: 0.8;
+}
+
+@keyframes rotateDevice {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(90deg); }
+}
+
+@media (orientation: landscape) {
+  #rotate-warning {
+    display: none;
+  }
 }

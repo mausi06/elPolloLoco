@@ -3,70 +3,34 @@
  * interactions, and the game loop.
  */
 class World {
-    /**
-     * Creates a new World instance.
-     * @param {HTMLCanvasElement} canvas - The canvas element for drawing.
-     * @param {Keyboard} keyboard - The keyboard handler.
-     */
     constructor(canvas, keyboard) {
-        /** @type {CanvasRenderingContext2D} */
         this.ctx = canvas.getContext('2d');
-        /** @type {HTMLCanvasElement} */
         this.canvas = canvas;
-        /** @type {Keyboard} */
         this.keyboard = keyboard;
-
-        /** @type {Level} */
         this.level = createLevel1();
-        /** @type {Character} */
         this.character = new Character();
         this.character.world = this;
 
-        /** @type {number} */
         this.totalCoins = this.level.coins.length;
-        /** @type {number} */
         this.totalBottles = this.level.bottles.length;
-        /** @type {number} */
         this.collectedCoins = 0;
-        /** @type {number} */
         this.collectedBottles = 0;
-
-        /** @type {HealthStatusBar} */
         this.healthStatusBar = new HealthStatusBar();
-        /** @type {CoinStatusBar} */
         this.coinStatusBar = new CoinStatusBar();
         this.coinStatusBar.setPercentage(0, this.totalCoins);
-        /** @type {BottleStatusBar} */
         this.bottleStatusBar = new BottleStatusBar();
         this.bottleStatusBar.setPercentage(0, this.totalBottles);
-        /** @type {EndbossHealthStatusBar} */
         this.endbossHealthStatusBar = new EndbossHealthStatusBar();
-
-        /** @type {GameOver} */
         this.gameOver = new GameOver();
-        /** @type {YouWin} */
         this.youWin = new YouWin();
-
-        /** @type {boolean} */
         this.gameIsRunning = true;
-        /** @type {boolean} */
         this.characterIsDead = false;
-        /** @type {boolean} */
         this.gameIsWon = false;
-
-        /** @type {HTMLAudioElement} */
         this.game_music = new Audio('audio/game-music.mp3');
-        /** @type {HTMLAudioElement} */
         this.game_over_sound = new Audio('audio/game-over.mp3');
-        /** @type {HTMLAudioElement[]} */
         this.sounds = [this.game_music, this.game_over_sound, this.character.walking_sound, this.character.jump_sound, this.character.hurt_sound];
-        /** @type {boolean} */
         this.isMuted = false;
-
-        /** @type {ThrowableObject[]} */
         this.throwableObjects = [];
-
-        /** @type {CollisionManager} */
         this.collisionManager = new CollisionManager(this);
 
         this.setWorld();

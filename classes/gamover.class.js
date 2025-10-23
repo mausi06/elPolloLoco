@@ -6,22 +6,11 @@
  * @extends DrawableObject
  */
 class GameOver extends DrawableObject {
-    /** @type {boolean} Indicates whether the game over animation is currently running. */
     isAnimating = false;
-
-    /** @type {number} The target Y-coordinate where the image stops sliding. */
     targetY = 0;
-
-    /** @type {number} The vertical movement speed of the animation. */
     speed = 5;
-
-    /** @type {boolean} Indicates whether the animation has finished playing. */
     isAnimationComplete = false;
 
-    /**
-     * Creates a new "Game Over" screen instance.
-     * Loads the image, sets dimensions, and initializes the starting position above the canvas.
-     */
     constructor() {
         super();
         this.loadImage('img/You won, you lost/You lost.png');

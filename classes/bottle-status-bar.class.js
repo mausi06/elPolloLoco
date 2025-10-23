@@ -3,10 +3,6 @@
  * Extends DrawableObject to display different images based on the current bottle percentage.
  */
 class BottleStatusBar extends DrawableObject {
-  /**
-   * Array of image paths representing the different stages of the bottle status.
-   * @type {string[]}
-   */
   IMAGES = [
     'img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/0.png',
     'img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/20.png',
@@ -15,17 +11,8 @@ class BottleStatusBar extends DrawableObject {
     'img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/80.png',
     'img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/100.png',
   ];
-
-  /**
-   * Current percentage of bottles collected.
-   * @type {number}
-   */
   percentage = 0;
 
-  /**
-   * Creates a BottleStatusBar instance.
-   * Loads all images and sets default position and size.
-   */
   constructor() {
     super();
     this.loadImages(this.IMAGES);

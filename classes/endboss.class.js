@@ -3,53 +3,23 @@
  * Extends MovableObjetcs and handles animations, movement, attack logic, and health.
  */
 class Endboss extends MovableObjetcs {
-    /** @type {number} Height of the Endboss in pixels. */
     height = 400;
-
-    /** @type {number} Width of the Endboss in pixels. */
     width = 250;
-
-    /** @type {number} Vertical position (y-coordinate) of the Endboss. */
     y = 60;
-
-    /** @type {number} Horizontal movement speed of the Endboss. */
     speed = 5;
-
-    /** @type {boolean} Flag indicating if the character has been spotted. */
     spotCharacter = false;
-
-    /** @type {boolean} Flag indicating if the Endboss is currently in a walking state. */
     isWalking = false;
-
-    /** @type {number} The current health points of the Endboss. */
     energy = 100;
-
-    /** @type {boolean} Flag indicating if the Endboss is currently in a hurt state. */
     isHurt = false;
-
-    /** @type {boolean} Flag indicating if the Endboss is currently in an attacking state. */
     isAttacking = false;
-
-    /** @type {number} Timestamp of the last attack, used for cooldown. */
     lastAttackTime = 0;
-
-    /** @type {number} Minimum interval in milliseconds between attacks. */
     attackCooldown = 1500;
-
-    /** @type {number} The distance in which the Endboss can attack the character. */
     attackRange = 100;
-
-    /** @type {boolean} Flag indicating if the initial alert animation has been played. */
     alertPlayed = false;
-
-    /** @type {boolean} Flag for completion of the death animation. */
     isDeadAnimationComplete = false;
-
-    /** @type {boolean} Flag to stop all animations and actions of the Endboss. */
     stopAnimations = false;
 
-    /** @type {string[]} Array of image paths for the alert animation. */
-    Images_ALERT = [
+    IMAGES_ALERT = [
         'img/4_enemie_boss_chicken/2_alert/G5.png',
         'img/4_enemie_boss_chicken/2_alert/G6.png',
         'img/4_enemie_boss_chicken/2_alert/G7.png',
@@ -60,16 +30,14 @@ class Endboss extends MovableObjetcs {
         'img/4_enemie_boss_chicken/2_alert/G12.png',
     ];
 
-    /** @type {string[]} Array of image paths for the walking animation. */
-    Images_WALKING = [
+    IMAGES_WALKING = [
         'img/4_enemie_boss_chicken/1_walk/G1.png',
         'img/4_enemie_boss_chicken/1_walk/G2.png',
         'img/4_enemie_boss_chicken/1_walk/G3.png',
         'img/4_enemie_boss_chicken/1_walk/G4.png'
     ];
 
-    /** @type {string[]} Array of image paths for the attack animation. */
-    Images_ATTACK = [
+    IMAGES_ATTACK = [
         'img/4_enemie_boss_chicken/3_attack/G13.png',
         'img/4_enemie_boss_chicken/3_attack/G14.png',
         'img/4_enemie_boss_chicken/3_attack/G15.png',
@@ -80,32 +48,26 @@ class Endboss extends MovableObjetcs {
         'img/4_enemie_boss_chicken/3_attack/G20.png',
     ];
 
-    /** @type {string[]} Array of image paths for the hurt animation. */
-    Images_HURT = [
+    IMAGES_HURT = [
         'img/4_enemie_boss_chicken/4_hurt/G21.png',
         'img/4_enemie_boss_chicken/4_hurt/G22.png',
         'img/4_enemie_boss_chicken/4_hurt/G23.png'
     ];
 
-    /** @type {string[]} Array of image paths for the death animation. */
-    Images_DEAD = [
+    IMAGES_DEAD = [
         'img/4_enemie_boss_chicken/5_dead/G24.png',
         'img/4_enemie_boss_chicken/5_dead/G25.png',
         'img/4_enemie_boss_chicken/5_dead/G26.png'
     ];
 
-    /**
-     * Creates an Endboss instance.
-     * Loads all images for the animations and sets the initial x-position.
-     */
     constructor() {
         super();
-        this.loadImage(this.Images_ALERT[0]);
-        this.loadImages(this.Images_ALERT);
-        this.loadImages(this.Images_WALKING);
-        this.loadImages(this.Images_ATTACK);
-        this.loadImages(this.Images_HURT);
-        this.loadImages(this.Images_DEAD);
+        this.loadImage(this.IMAGES_ALERT[0]);
+        this.loadImages(this.IMAGES_ALERT);
+        this.loadImages(this.IMAGES_WALKING);
+        this.loadImages(this.IMAGES_ATTACK);
+        this.loadImages(this.IMAGES_HURT);
+        this.loadImages(this.IMAGES_DEAD);
         this.x = 2500;
     }
 
@@ -126,13 +88,13 @@ class Endboss extends MovableObjetcs {
         if (this.isDead()) {
             this.handleDeathAnimation();
         } else if (this.isHurt) {
-            this.playAnimation(this.Images_HURT);
+            this.playAnimation(this.IMAGES_HURT);
         } else if (this.isAttacking) {
-            this.playAnimation(this.Images_ATTACK);
+            this.playAnimation(this.IMAGES_ATTACK);
         } else if (this.spotCharacter && this.isWalking) {
-            this.playAnimation(this.Images_WALKING);
+            this.playAnimation(this.IMAGES_WALKING);
         } else {
-            this.playAnimation(this.Images_ALERT);
+            this.playAnimation(this.IMAGES_ALERT);
         }
     }
 
@@ -142,11 +104,11 @@ class Endboss extends MovableObjetcs {
     handleDeathAnimation() {
         if (this.isDeadAnimationComplete) return;
 
-        this.playAnimation(this.Images_DEAD);
+        this.playAnimation(this.IMAGES_DEAD);
         setTimeout(() => {
             this.isDeadAnimationComplete = true;
-            this.loadImage(this.Images_DEAD[this.Images_DEAD.length - 1]);
-        }, this.Images_DEAD.length * 600);
+            this.loadImage(this.IMAGES_DEAD[this.IMAGES_DEAD.length - 1]);
+        }, this.IMAGES_DEAD.length * 600);
     }
 
     /**
@@ -173,7 +135,7 @@ class Endboss extends MovableObjetcs {
         setTimeout(() => {
             this.isWalking = true;
             this.alertPlayed = true;
-        }, this.Images_ALERT.length * 200);
+        }, this.IMAGES_ALERT.length * 200);
     }
 
     /**

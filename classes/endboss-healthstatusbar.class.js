@@ -3,7 +3,6 @@
  * Extends DrawableObject to display different images based on Endboss health percentage.
  */
 class EndbossHealthStatusBar extends DrawableObject {
-    /** @type {string[]} Array of image paths representing different health stages */
     IMAGES = [
         'img/7_statusbars/2_statusbar_endboss/orange/orange0.png',
         'img/7_statusbars/2_statusbar_endboss/orange/orange20.png',
@@ -13,13 +12,8 @@ class EndbossHealthStatusBar extends DrawableObject {
         'img/7_statusbars/2_statusbar_endboss/orange/orange100.png',
     ];
 
-    /** @type {number} Current health percentage of the Endboss */
     percentage = 100;
 
-    /**
-     * Creates an EndbossHealthStatusBar instance.
-     * Loads all images and sets fixed position and size on the screen.
-     */
     constructor() {
         super();
         this.loadImages(this.IMAGES);

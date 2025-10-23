@@ -14,10 +14,6 @@ class Character extends MovableObjetcs {
     hurt_sound_played = false;
     jumpAnimationPlayed = false;
 
-    /**
-     * Image sets for different animation states.
-     * Each state contains an ordered list of image frame paths.
-     */
     Images_IDILE = [
         'img/2_character_pepe/1_idle/idle/I-1.png',
         'img/2_character_pepe/1_idle/idle/I-2.png',
@@ -81,35 +77,17 @@ class Character extends MovableObjetcs {
         'img/2_character_pepe/4_hurt/H-43.png'
     ];
 
-    /** @type {HTMLAudioElement} Sound effect when walking. */
     walking_sound = new Audio('audio/walking-sound-effect-272246.mp3');
-
-    /** @type {HTMLAudioElement} Sound effect when jumping. */
     jump_sound = new Audio('audio/jump.mp3');
-
-    /** @type {HTMLAudioElement} Sound effect when taking damage. */
     hurt_sound = new Audio('audio/hurt.mp3');
-
-    /** @type {string[]} Current active animation frame set. */
     currentAnimation = null;
-
-    /** @type {number} Index of the current animation frame. */
     currentFrameIndex = 0;
-
-    /** @type {number} Frame timing and playback control. */
     frameTimer = 0;
     frameDelay = 50;
     animationLoop = true;
-
-    /** @type {number} Timestamp of the last player action, used for idle → sleep transition. */
     lastActionTime = Date.now();
-
-    /** @type {boolean} Indicates if the character is currently sleeping. */
     isSleeping = false;
 
-    /**
-     * Creates the main character, loads all animations, and initializes movement logic.
-     */
     constructor() {
         super().loadImage('img/2_character_pepe/1_idle/idle/I-1.png');
         this.loadImages(this.Images_IDILE);
