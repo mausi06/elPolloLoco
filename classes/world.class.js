@@ -15,6 +15,7 @@ class World {
         this.totalBottles = this.level.bottles.length;
         this.collectedCoins = 0;
         this.collectedBottles = 0;
+
         this.healthStatusBar = new HealthStatusBar();
         this.coinStatusBar = new CoinStatusBar();
         this.coinStatusBar.setPercentage(0, this.totalCoins);
@@ -23,20 +24,23 @@ class World {
         this.endbossHealthStatusBar = new EndbossHealthStatusBar();
         this.gameOver = new GameOver();
         this.youWin = new YouWin();
+
         this.gameIsRunning = true;
         this.characterIsDead = false;
         this.gameIsWon = false;
+
         this.game_music = new Audio('audio/game-music.mp3');
         this.game_over_sound = new Audio('audio/game-over.mp3');
-        this.sounds = [this.game_music, this.game_over_sound, this.character.walking_sound, this.character.jump_sound, this.character.hurt_sound];
         this.isMuted = false;
         this.throwableObjects = [];
+
         this.collisionManager = new CollisionManager(this);
 
         this.setWorld();
         this.loadMuteStatus();
         this.draw();
         this.startCollisionLoop();
+
         if (!this.isMuted) this.game_music.play();
     }
 
@@ -64,7 +68,10 @@ class World {
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.translate(this.camera_x, 0);
-        [this.level.backgroundObjects, this.level.coins, this.level.bottles, this.throwableObjects, this.level.enemies, this.level.clouds].forEach(group => this.addObjectsToMap(group));
+
+        [this.level.backgroundObjects, this.level.coins, this.level.bottles, this.throwableObjects, this.level.enemies, this.level.clouds]
+            .forEach(group => this.addObjectsToMap(group));
+
         this.addToMap(this.character);
         this.ctx.translate(-this.camera_x, 0);
 
@@ -176,7 +183,7 @@ class World {
     updateMuteIcon() {
         const muteIcon = document.getElementById('mute-icon');
         if (muteIcon) {
-            muteIcon.src = this.isMuted ? 'img/mute.png' : 'img/unmute.png';
+            muteIcon.src = this.isMuted ? '../img/mute.png' : '../img/unmute.png';
         }
     }
 
@@ -197,46 +204,6 @@ class World {
     loadSavedMuteState() {
         const saved = localStorage.getItem('isMusicMuted');
         this.isMuted = saved ? saved === 'true' : false;
-    }
-
-    /**
-     * Applies the current mute state to all game sounds and manages playback.
-     */
-    applyMuteToAllSounds() {
-        const allSounds = this.getAllSounds();
-
-        allSounds.forEach(sound => sound.muted = this.isMuted);
-
-        if (this.isMuted) {
-            this.game_music.pause();
-        } else {
-            this.game_music.play().catch(() => {});
-        }
-    }
-
-    /**
-     * Returns all active sound elements used in the game.
-     * @returns {HTMLAudioElement[]} Array of sound objects.
-     */
-    getAllSounds() {
-        return [
-            this.game_music,
-            this.game_over_sound,
-            this.character.walking_sound,
-            this.character.jump_sound,
-            this.character.hurt_sound,
-            this.character.snoring_sound,
-        ].filter(Boolean);
-    }
-
-    /**
-     * Updates the mute/unmute icon based on the current mute state.
-     */
-    updateMuteIcon() {
-        const muteIcon = document.getElementById('mute-icon');
-        if (muteIcon) {
-            muteIcon.src = this.isMuted ? 'img/mute.png' : 'img/unmute.png';
-        }
     }
 
     /**

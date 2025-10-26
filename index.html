@@ -36,7 +36,7 @@
         <canvas id="canvas" width="720" height="480"></canvas>
 
         <div id="mute-button" class="hidden" onclick="world.toggleMute()">
-            <img id="mute-icon" src="/img/mute.png" alt="Mute">
+            <img id="mute-icon" src="" alt="Mute">
         </div>
 
         <div id="end-screen" class="hidden">
@@ -56,12 +56,20 @@
 
     <div id="panel">
         <div id="panel-left">
-            <button id="btn-left">←</button>
-            <button id="btn-right">→</button>
+            <button id="btn-left" class="control-btn">
+                <img src="img/left-arrow.png" alt="left">
+            </button>
+            <button id="btn-right" class="control-btn">
+                <img src="img/right-arrow.png" alt="right">
+            </button>
         </div>
         <div id="panel-right">
-            <button id="btn-jump">⤒</button>
-            <button id="btn-throw">🥤</button>
+            <button id="btn-jump" class="control-btn">
+                <img src="img/jump.png" alt="Jump">
+            </button>
+            <button id="btn-throw" class="control-btn" aria-label="Throw bottle">
+                <img src="img/6_salsa_bottle/salsa_bottle.png" alt="Throw bottle icon">
+            </button>
         </div>
     </div>
 

@@ -1,3 +1,14 @@
+/**
+ * Creates and returns the first game level configuration.
+ * 
+ * This function constructs a new {@link Level} instance with:
+ * - Enemies (MiniChickens, Chickens, Endboss)
+ * - Clouds for background animation
+ * - Multiple background layers to create parallax scrolling effect
+ * - Coins and bottles as collectible items
+ * 
+ * @returns {Level} A fully initialized Level 1 instance.
+ */
 function createLevel1() {
   return new Level(
     [

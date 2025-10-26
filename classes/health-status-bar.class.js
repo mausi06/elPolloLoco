@@ -3,7 +3,6 @@
  * Extends DrawableObject and updates its image based on current health percentage.
  */
 class HealthStatusBar extends DrawableObject {
-    /** @type {string[]} Array of image paths for different health levels */
     IMAGES = [
         'img/7_statusbars/1_statusbar/2_statusbar_health/green/0.png',
         'img/7_statusbars/1_statusbar/2_statusbar_health/green/20.png',
@@ -13,13 +12,8 @@ class HealthStatusBar extends DrawableObject {
         'img/7_statusbars/1_statusbar/2_statusbar_health/green/100.png',
     ];
 
-    /** @type {number} Current health percentage (0-100) */
     percentage = 100;
 
-    /**
-     * Creates a HealthStatusBar instance.
-     * Loads all images and sets position and size on the screen.
-     */
     constructor() {
         super();
         this.loadImages(this.IMAGES);

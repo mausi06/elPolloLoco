@@ -75,8 +75,8 @@ class Endboss extends MovableObjetcs {
      * Starts the Endboss logic, including animation loops and movement/attack logic.
      */
     startLogic() {
-        setInterval(() => this.handleAnimations(), 200); // Animation loop
-        setInterval(() => this.handleMovementAndAttack(), 1000/60); // Movement and attack loop
+        setInterval(() => this.handleAnimations(), 200);
+        setInterval(() => this.handleMovementAndAttack(), 1000/60);
     }
 
     /**

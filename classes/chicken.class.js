@@ -25,7 +25,7 @@ class Chicken extends MovableObjetcs {
 
         this.x = 1400 + Math.random() * 500;
         this.speed = 0.15 + Math.random() * 0.5;
-        this.energy = 1; // The chicken has only 1 health point
+        this.energy = 1;
 
         this.animate();
     }

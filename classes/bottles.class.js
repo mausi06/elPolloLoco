@@ -12,11 +12,6 @@ class Bottle extends MovableObjetcs {
 
   constructor() {
     super().loadImage(this.Images_BOTTLE[0]);
-    /**
-     * Horizontal position of the bottle.
-     * Randomized between 200 and 2000.
-     * @type {number}
-     */
     this.x = 200 + Math.random() * 1800;
   }
 }

@@ -12,7 +12,6 @@ class MiniChicken extends MovableObjetcs {
         'img/3_enemies_chicken/chicken_small/1_walk/3_w.png'
     ];
 
-    /** @type {string[]} Images for death animation */
     IMAGES_DEAD = [
         'img/3_enemies_chicken/chicken_small/2_dead/dead.png',
     ];

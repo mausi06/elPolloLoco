@@ -5,7 +5,8 @@ let allIntervals = [];
 let isGameStarted = false;
 
 /**
- * Checks if the panel should be visible based on screen size and game status.
+ * Checks if the touch control panel should be visible 
+ * based on the current game state and whether the device supports touch.
  */
 function checkPanelVisibility() {
     let panel = document.getElementById('panel');
@@ -19,7 +20,8 @@ function checkPanelVisibility() {
 }
 
 /**
- * Initializes the game and creates a new World object.
+ * Initializes the game world.
+ * Sets up the canvas and creates a new {@link World} instance with the keyboard controls.
  */
 function init() {
     canvas = document.getElementById('canvas');
@@ -27,8 +29,13 @@ function init() {
 }
 
 /**
- * This function is triggered by the "Start Game" button.
- * It hides the start screen, sets the game status, and initializes the game.
+ * Starts the game.
+ * 
+ * - Hides the start screen.
+ * - Sets the game state to "started".
+ * - Initializes the world.
+ * - Displays the mute button.
+ * - Plays background music (if not muted).
  */
 function startGame() {
     document.getElementById('start-screen').classList.add('hidden');
@@ -42,12 +49,17 @@ function startGame() {
 }
 
 /**
- * Restarts the game by resetting all game states and showing the start screen.
+ * Restarts the game by resetting all variables and intervals.
+ * 
+ * - Clears active intervals.
+ * - Resets world and keyboard instances.
+ * - Resets UI elements (start, end, mute, and touch panels).
+ * - Clears the canvas.
+ * - Resets win/lose state animations.
  */
 function restartGame() {
     allIntervals.forEach(interval => clearInterval(interval));
     allIntervals = [];
-
     world = null;
     keyboard = new Keyboard();
 
@@ -71,22 +83,32 @@ function restartGame() {
 }
 
 /**
- * Waits for the DOM to be fully loaded before adding event listeners.
+ * Initializes all event listeners once the DOM is fully loaded.
+ * 
+ * - Adds window resize listener to check panel visibility.
+ * - Initializes keyboard and touch input handlers.
  */
-    document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', checkPanelVisibility);
-
     initTouchControls(keyboard);
     initKeyboardControls(keyboard);
 });
 
+/**
+ * Initializes keyboard controls for desktop users.
+ * 
+ * @param {Keyboard} keyboard - The keyboard input handler instance.
+ * 
+ * Maps specific key codes to movement or action states and updates the 
+ * {@link Keyboard} instance accordingly on `keydown` and `keyup` events.
+ */
 function initKeyboardControls(keyboard) {
     const keyMap = {
-        37: 'LEFT',
-        38: 'UP',
-        39: 'RIGHT',
+        37: 'LEFT',  
+        38: 'UP',    
+        39: 'RIGHT', 
         40: 'DOWN',
-        32: 'SPACE'
+        32: 'SPACE'  
     };
 
     window.addEventListener("keydown", (e) => {
@@ -104,6 +126,14 @@ function initKeyboardControls(keyboard) {
     });
 }
 
+/**
+ * Initializes touch controls for mobile and tablet devices.
+ * 
+ * @param {Keyboard} keyboard - The keyboard input handler instance.
+ * 
+ * Binds touch events (`touchstart`, `touchend`) to the on-screen control buttons.
+ * When a button is pressed, it sets the corresponding keyboard property to `true` or `false`.
+ */
 function initTouchControls(keyboard) {
     const buttons = [
         { id: 'btn-left', key: 'LEFT' },
